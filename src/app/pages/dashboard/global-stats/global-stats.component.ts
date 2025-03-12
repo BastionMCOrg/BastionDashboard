@@ -1,22 +1,21 @@
 import {Component} from '@angular/core';
 import {generateRandomData, trackByFn} from '../../../core/utils/utils';
-import {NgClass} from '@angular/common';
 import {Tag} from 'primeng/tag';
 import {Select} from 'primeng/select';
 import {LineChart} from '../../../shared/charts/linechart';
 import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
 
 @Component({
-    selector: 'app-server-stats-widget',
+    selector: 'app-global-stats',
     imports: [
-        NgClass,
         Tag,
         Select,
         LineChart,
-        FormsModule
+        FormsModule,
+        CommonModule
     ],
-    templateUrl: './server-stats-widget.component.html',
-    standalone: true,
+    templateUrl: './global-stats.component.html',
     host: {
         class: 'grid grid-cols-1 xl:grid-cols-3 divide-y xl:divide-y-0 xl:divide-x divide-[var(--surface-border)]'
     },
@@ -73,7 +72,8 @@ import {FormsModule} from '@angular/forms';
         }
     `
 })
-export class ServerStatsWidgetComponent {
+export class GlobalStatsComponent {
+
     ranges = [
         {name: 'Quotidien', unit: 'day'},
         {name: 'Hebdomadaire', unit: 'week'},
@@ -87,7 +87,7 @@ export class ServerStatsWidgetComponent {
         {
             className: 'pb-6 xl:pb-0 xl:pr-6',
             cardData: {
-                title: 'Nombre de serveurs',
+                title: 'Serveurs actifs',
                 value: '12',
                 percent: '64',
                 positive: true
@@ -98,7 +98,7 @@ export class ServerStatsWidgetComponent {
             className: 'py-6 xl:py-0 xl:px-6',
             cardData: {
                 title: 'Joueurs connectés',
-                value: '$2,460.34',
+                value: '54',
                 percent: '12',
                 positive: false
             },
@@ -109,8 +109,8 @@ export class ServerStatsWidgetComponent {
         {
             className: 'pt-6 xl:pt-0 xl:pl-6',
             cardData: {
-                title: ' ',
-                value: '27.329',
+                title: 'Démarrage moyen',
+                value: '27.3s',
                 percent: '32',
                 positive: true
             },
@@ -134,4 +134,5 @@ export class ServerStatsWidgetComponent {
     }
 
     protected readonly trackByFn = trackByFn;
+
 }

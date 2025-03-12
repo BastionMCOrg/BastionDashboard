@@ -1,21 +1,20 @@
 import {Component} from '@angular/core';
-import {Select} from 'primeng/select';
-import {FormsModule} from '@angular/forms';
-import {Tag} from 'primeng/tag';
-import {CustomMeter} from '../../../shared/charts/custommeter';
 import {Button} from 'primeng/button';
+import {CustomMeter} from '../../../shared/charts/custommeter';
+import {Select} from 'primeng/select';
+import {Tag} from 'primeng/tag';
+import {FormsModule} from '@angular/forms';
 
 @Component({
-    selector: 'app-server-uptime-widget',
+    selector: 'app-tps-stats',
     imports: [
-        Select,
-        FormsModule,
-        Tag,
+        Button,
         CustomMeter,
-        Button
+        Select,
+        Tag,
+        FormsModule
     ],
-    templateUrl: './server-uptime-widget.component.html',
-    standalone: true,
+    templateUrl: './tps-stats.component.html',
     host: {
         class: 'xl:w-auto w-full xl:pl-6 pt-6 xl:pt-0 min-w-80 flex flex-col justify-between gap-10'
     },
@@ -62,7 +61,7 @@ import {Button} from 'primeng/button';
         }
     `
 })
-export class ServerUptimeWidgetComponent {
+export class TpsStatsComponent {
     ranges = [
         {name: 'Weekly', code: 'wk'},
         {name: 'Monthly', code: 'mn'},

@@ -1,18 +1,17 @@
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 import {generateRandomMultiData} from '../../../core/utils/utils';
+import {MultiLineChart} from '../../../shared/charts/multilinechart';
 import {Select} from 'primeng/select';
 import {FormsModule} from '@angular/forms';
-import {MultiLineChart} from '../../../shared/charts/multilinechart';
 
 @Component({
-    selector: 'app-server-performance-widget',
+  selector: 'app-ram-cpu-stats',
     imports: [
-        Select,
-        FormsModule,
         MultiLineChart,
+        Select,
+        FormsModule
     ],
-    templateUrl: './server-performance-widget.component.html',
-    standalone: true,
+  templateUrl: './ram-cpu-stats.component.html',
     host: {
         class: 'flex-1 xl:pr-6 pb-6 xl:pb-0 min-w-80 flex flex-col overflow-hidden'
     },
@@ -59,24 +58,24 @@ import {MultiLineChart} from '../../../shared/charts/multilinechart';
         }
     `
 })
-export class ServerPerformanceWidgetComponent {
+export class RamCpuStatsComponent {
 
     ranges = [
-        {name: 'Weekly', unit: 'week'},
-        {name: 'Monthly', unit: 'month'},
-        {name: 'Quarter', unit: 'quarter'},
-        {name: 'Yearly', unit: 'year'}
+        { name: 'Quotidien', unit: 'week' },
+        { name: 'Hebdomadaire', unit: 'month' },
+        { name: 'Mensuel', unit: 'quarter' },
+        { name: 'Annuel', unit: 'year' }
     ];
 
     selectedRange = this.ranges[0];
 
     dataset = {
         cardData: {
-            title: 'Total Visitor ',
-            description: 'Sales trends summary, performance analysis'
+            title: 'RAM/CPU Usage',
+            description: 'Courbes de tendance de l\'utilisation de la RAM et du CPU'
         },
-        currency: '$',
-        labels: ['Income', 'Expenses'],
+        currency: '%',
+        labels: ['CPU', 'RAM'],
         datasets: generateRandomMultiData('2020-10-27T00:00:00', '2023-11-03T00:00:00', 4, 2000, 3000, 2, true),
         bgColors: [undefined, ['rgba(165,243,252,0.4)', 'rgba(165,243,252,0)']],
         borderColors: [undefined, 'rgb(8,145,178)']

@@ -1,20 +1,19 @@
 import {Component} from '@angular/core';
-import {MinigamesListWidgetComponent} from './minigames-list-widget/minigames-list-widget.component';
-import {ServerPerformanceWidgetComponent} from './server-performance-widget/server-performance-widget.component';
-import {ServerStatsWidgetComponent} from './server-stats-widget/server-stats-widget.component';
-import {ServerUptimeWidgetComponent} from './server-uptime-widget/server-uptime-widget.component';
+import {GlobalStatsComponent} from './global-stats/global-stats.component';
+import {RamCpuStatsComponent} from './ram-cpu-stats/ram-cpu-stats.component';
+import {TpsStatsComponent} from './tps-stats/tps-stats.component';
+import {MinigamesListComponent} from './minigames-list/minigames-list.component';
 
 @Component({
-  selector: 'app-dashboard',
+    selector: 'app-dashboard',
     imports: [
-        MinigamesListWidgetComponent,
-        ServerPerformanceWidgetComponent,
-        ServerStatsWidgetComponent,
-        ServerUptimeWidgetComponent
+        GlobalStatsComponent,
+        RamCpuStatsComponent,
+        TpsStatsComponent,
+        MinigamesListComponent,
     ],
-  templateUrl: './dashboard.component.html',
-  standalone: true,
-  styles: ``
+    templateUrl: './dashboard.component.html',
+    styles: ``
 })
 export class DashboardComponent {
 
