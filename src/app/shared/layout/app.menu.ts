@@ -25,16 +25,6 @@ export class AppMenu {
           label: 'Accueil',
           icon: 'pi pi-fw pi-warehouse',
           routerLink: ['/']
-        },
-        {
-          label: 'Serveurs',
-          icon: 'pi pi-fw pi-building-columns',
-          routerLink: ['/dashboard-banking']
-        },
-        {
-          label: 'Mini-jeux',
-          icon: 'pi pi-fw pi-gauge',
-          routerLink: ['/dashboard-marketing']
         }
       ]
     },

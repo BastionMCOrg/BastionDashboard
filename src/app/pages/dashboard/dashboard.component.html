@@ -1,8 +1,17 @@
 <section class="flex flex-col [&>*]:py-8 [&>*:first-child]:!pt-0 [&>*:last-child]:!pb-0 divide-y divide-[var(--surface-border)]">
-    <app-global-stats />
-    <div class="flex xl:flex-row flex-col xl:divide-y-0 divide-y xl:divide-x divide-[var(--surface-border)]">
-        <app-ram-cpu-stats />
-        <app-tps-stats />
-    </div>
-    <app-minigames-list />
+    <app-stats/>
+    <p-tabs value="0">
+        <p-tablist>
+            <p-tab value="0">Mini-Jeux</p-tab>
+            <p-tab value="1">Serveurs</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+                <app-minigame-list/>
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <app-server-list/>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
 </section>

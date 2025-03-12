@@ -78,7 +78,7 @@ export const sampleDataReduction = (
                     return sum + (value.y as number); // Assume `y` is a number (not array)
                 }, 0) / range.length;
 
-                sampledData.push({ x: range[0].x, y: rangeAverage });
+                sampledData.push({x: range[0].x, y: rangeAverage});
             }
             return sampledData;
         }
@@ -149,7 +149,7 @@ export const sampleDataReductionByArray = (
                     sampledPointY = tempData[i].y as number;
                 }
 
-                sampledData.push({ x: tempData[i].x, y: sampledPointY });
+                sampledData.push({x: tempData[i].x, y: sampledPointY});
             }
         }
         return sampledData;
@@ -237,7 +237,7 @@ export const sampleDataByFixedLength = (
 
         if (unit !== currentUnit) {
             const avgValues = average(tempData.map((item) => item.y));
-            sampledData.unshift({ x: tempData[0].x, y: avgValues });
+            sampledData.unshift({x: tempData[0].x, y: avgValues});
             tempData = [];
             currentUnit = unit;
         }
@@ -251,7 +251,7 @@ export const sampleDataByFixedLength = (
 
     if (tempData.length > 0) {
         const avgValues = average(tempData.map((item) => item.y));
-        sampledData.unshift({ x: tempData[0].x, y: avgValues });
+        sampledData.unshift({x: tempData[0].x, y: avgValues});
     }
     if (['week', 'month', 'quarter'].includes(option)) {
         const days: any = {
@@ -283,7 +283,7 @@ export const generateRandomData = (
 
     while (currentDate <= end) {
         const currentValue: number = minValue + Math.random() * (maxValue - minValue);
-        data.push({ x: new Date(currentDate), y: parseFloat(currentValue.toFixed(2)) });
+        data.push({x: new Date(currentDate), y: parseFloat(currentValue.toFixed(2))});
         currentDate = new Date(currentDate.getTime() + intervalHours * 60 * 60 * 1000);
     }
 
@@ -320,7 +320,7 @@ export const generateRandomMultiData = (
                     return (minValue + Math.random() * (maxValue - minValue)).toFixed(0);
                 });
         }
-        data.push({ x: new Date(currentDate), y: [...currentValues] });
+        data.push({x: new Date(currentDate), y: [...currentValues]});
 
         currentDate = new Date(currentDate.getTime() + intervalHours * 60 * 60 * 1000);
     }
@@ -334,4 +334,11 @@ export const trackByFn = (): string => {
 
     return uniqueId;
 }
+
+export const ranges: {name: string, unit: string}[] = [
+    {name: 'Quotidien', unit: 'day'},
+    {name: 'Hebdomadaire', unit: 'week'},
+    {name: 'Mensuel', unit: 'month'},
+    {name: 'Annuel', unit: 'year'}
+];
 

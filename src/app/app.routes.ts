@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 import {AppLayout} from './shared/layout/app.layout';
+import {MinigameComponent} from './pages/minigame/minigame.component';
 import {DashboardComponent} from './pages/dashboard/dashboard.component';
 
 export const routes: Routes = [
@@ -8,13 +9,20 @@ export const routes: Routes = [
         component: AppLayout,
         children: [
             {
+                path: '',
                 data: {
                     breadcrumb: 'Données générales'
                 },
-                path: '',
-                component: DashboardComponent
-                //loadComponent: () => import('./pages/dashboard/marketingdashboard').then(m => m.MarketingDashboard),
-            }
+                component: DashboardComponent,
+            },
+            {
+                path: 'minigames/:id',
+                data: {
+                    breadcrumb: 'Mini-jeux'
+                },
+                component: MinigameComponent,
+            },
+            {path: '**', redirectTo: '/dashboard'}
         ]
-    }
+    },
 ];
