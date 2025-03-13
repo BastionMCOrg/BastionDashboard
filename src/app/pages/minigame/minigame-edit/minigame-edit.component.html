@@ -1,0 +1,199 @@
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [style]="{width: '80vw', maxWidth: '900px'}"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="onHide()"
+    header="Modifier le mini-jeu"
+    [closeOnEscape]="true"
+>
+    <form [formGroup]="minigameForm" (ngSubmit)="onSubmit()" class="p-fluid">
+        <div class="grid">
+            <!-- Section: Informations générales -->
+
+            <div class="col-12 md:col-6">
+                <div class="field">
+                    <label for="displayName">Nom d'affichage*</label>
+                    <input id="displayName" type="text" pInputText formControlName="displayName"/>
+                    <small *ngIf="minigameForm.get('displayName')?.invalid && minigameForm.get('displayName')?.touched"
+                           class="p-error">
+                        Le nom d'affichage est requis.
+                    </small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="field">
+                    <label for="name">Nom interne (généré automatiquement)</label>
+                    <input
+                        id="name"
+                        type="text"
+                        pInputText
+                        formControlName="name"
+                        class="bg-gray-100 dark:bg-gray-800"
+                        pTooltip="Identifiant unique généré à partir du nom d'affichage"
+                    />
+                    <small>Format adapté pour les URL et identifiants système</small>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea
+                    class="w-full"
+                    id="description"
+                    pTextarea
+                    formControlName="description"
+                    [rows]="3"
+                ></textarea>
+            </div>
+
+            <div class="col-12">
+                <div class="field">
+                    <label>Développeurs</label>
+                    <div formArrayName="developerNames">
+                        <div class="flex items-center gap-2 mb-2"
+                             *ngFor="let dev of developerNames.controls; let i = index">
+                            <input pInputText [formControlName]="i" placeholder="Nom du développeur" class="flex-1"/>
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-trash"
+                                class="p-button-danger p-button-sm"
+                                (click)="removeDeveloperName(i)"
+                                [disabled]="developerNames.length === 1"
+                            ></button>
+                        </div>
+                        <button
+                            pButton
+                            type="button"
+                            label="Ajouter un développeur"
+                            icon="pi pi-plus"
+                            class="p-button-outlined p-button-secondary"
+                            (click)="addDeveloperName()"
+                        ></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Configuration du jeu -->
+
+            <div class="grid grid-cols-12 gap-2">
+                <div class="col-span-4 field">
+                    <label for="minPlayers">Joueurs minimum*</label>
+                    <p-inputNumber
+                        id="minPlayers"
+                        [min]="1"
+                        [max]="100"
+                        [showButtons]="true"
+                        formControlName="minPlayers"
+                        formGroupName="gameSettings"
+                    ></p-inputNumber>
+                </div>
+
+                <div class="col-span-4 field">
+                    <label for="maxPlayers">Joueurs maximum*</label>
+                    <p-inputNumber
+                        id="maxPlayers"
+                        [min]="1"
+                        [max]="100"
+                        [showButtons]="true"
+                        formControlName="maxPlayers"
+                        formGroupName="gameSettings"
+                    ></p-inputNumber>
+                </div>
+
+                <div class="col-span-4 field">
+                    <label for="minimalInstanceCount">Instances minimales</label>
+                    <p-inputNumber
+                        id="minimalInstanceCount"
+                        [min]="0"
+                        [max]="10"
+                        [showButtons]="true"
+                        formControlName="minimalInstanceCount"
+                        formGroupName="gameSettings"
+                    ></p-inputNumber>
+                    <small>Nombre minimum d'instances à maintenir actives</small>
+                </div>
+            </div>
+
+            <!-- Section: Configuration technique -->
+
+            <div class="grid grid-cols-12 gap-2" formGroupName="serverSettings">
+                <div class="col-span-6 field">
+                    <label for="memory">Mémoire allouée*</label>
+                    <input
+                        id="memory"
+                        type="text"
+                        pInputText
+                        formControlName="memory"
+                        pTooltip="Format: 2G ou 512M"
+                    />
+                    <small
+                        *ngIf="minigameForm.get('serverSettings.memory')?.invalid && minigameForm.get('serverSettings.memory')?.touched"
+                        class="p-error">
+                        Format requis: "2G" ou "512M"
+                    </small>
+                </div>
+
+                <div class="col-span-6 field">
+                    <label for="cpu">CPU alloués*</label>
+                    <p-inputNumber
+                        id="cpu"
+                        formControlName="cpu"
+                        [min]="1"
+                        [max]="8"
+                        [showButtons]="true"
+                    ></p-inputNumber>
+                </div>
+            </div>
+
+            <!-- Section: Configuration Docker -->
+
+            <div class="col-12" formGroupName="dockerSettings">
+                <!-- Variables d'environnement -->
+                <div class="field">
+                    <label>Variables d'environnement</label>
+                    <div formArrayName="env">
+                        <div *ngFor="let env of envVars.controls; let i = index" [formGroupName]="i"
+                             class="flex items-center gap-2 mb-2">
+                            <input pInputText formControlName="key" placeholder="Clé" class="flex-1"/>
+                            <input pInputText formControlName="value" placeholder="Valeur" class="flex-1"/>
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-trash"
+                                class="p-button-danger p-button-sm"
+                                (click)="removeEnvVar(i)"
+                            ></button>
+                        </div>
+                        <button
+                            pButton
+                            type="button"
+                            label="Ajouter une variable"
+                            icon="pi pi-plus"
+                            class="p-button-outlined p-button-secondary"
+                            (click)="addEnvVar()"
+                        ></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            icon="pi pi-times"
+            label="Annuler"
+            (click)="onHide()"
+            styleClass="p-button-text"
+        ></p-button>
+        <p-button
+            icon="pi pi-check"
+            label="Enregistrer"
+            (onClick)="onSubmit()"
+            [disabled]="minigameForm.invalid"
+        ></p-button>
+    </ng-template>
+</p-dialog>

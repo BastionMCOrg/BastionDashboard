@@ -6,6 +6,7 @@ import {StatsComponent} from '../stats/stats.component';
 import {Dialog} from 'primeng/dialog';
 import {PrimeTemplate} from 'primeng/api';
 import {ServerListComponent} from '../../shared/server-list/server-list.component';
+import {MinigameEditComponent} from './minigame-edit/minigame-edit.component';
 
 @Component({
     selector: 'app-minigame',
@@ -13,9 +14,8 @@ import {ServerListComponent} from '../../shared/server-list/server-list.componen
         Avatar,
         Button,
         StatsComponent,
-        Dialog,
-        PrimeTemplate,
-        ServerListComponent
+        ServerListComponent,
+        MinigameEditComponent
     ],
     templateUrl: './minigame.component.html',
     styleUrl: './minigame.component.scss',
@@ -68,6 +68,27 @@ export class MinigameComponent {
         }
 
         return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    }
+
+    saveMinigame(updatedMinigame: any): void {
+        // Dans un cas réel, on enverrait les données au backend
+        console.log('Minigame mis à jour:', updatedMinigame);
+
+        // Simulation d'un succès après sauvegarde
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Succès',
+        //     detail: 'Mini-jeu mis à jour avec succès',
+        //     life: 3000
+        // });
+
+        // Mise à jour des données locales
+        this.minigame = {
+            ...this.minigame,
+            ...updatedMinigame,
+            // Préserver les stats qui ne font pas partie du formulaire
+            stats: this.minigame.stats
+        };
     }
 
     // Ouvrir le dialogue de modification

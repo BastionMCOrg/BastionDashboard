@@ -110,8 +110,10 @@
                     </td>
                     <td>
                         <div class="flex gap-2 items-end justify-end">
-                            <p-button icon="pi pi-play" aria-label="Save" size="small" severity="success"/>
-                            <p-button icon="pi pi-info" aria-label="Save" size="small"/>
+                            <p-button [link]="['minigame', minigame.id]" icon="pi pi-play" aria-label="Save" size="small" severity="success"/>
+                            <a pButtonIcon [routerLink]="['minigame', minigame.id]">
+                                <p-button icon="pi pi-info" aria-label="Save" size="small"/>
+                            </a>
                         </div>
                     </td>
                 </tr>

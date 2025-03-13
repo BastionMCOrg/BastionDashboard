@@ -1,0 +1,89 @@
+:host {
+    display: block;
+}
+
+:host ::ng-deep {
+    .p-inputtext, .p-dropdown, .p-inputnumber {
+        width: 100%;
+    }
+
+    .field {
+        margin-bottom: 1.5rem;
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        small {
+            color: var(--text-color-secondary);
+        }
+    }
+
+    // Espacement entre les sections
+    .grid > .col-12 {
+        margin-top: 0.5rem;
+    }
+
+    // Style pour les boutons d'ajout
+    .p-button-outlined.p-button-secondary {
+        margin-top: 0.5rem;
+
+        &:hover {
+            background-color: var(--surface-100);
+            color: var(--primary-color);
+        }
+    }
+
+    // Style pour les petits boutons
+    .p-button-sm {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    // Style pour le bouton checkbox
+    .p-field-checkbox {
+        display: flex;
+        align-items: center;
+
+        .p-checkbox {
+            margin-right: 0.5rem;
+        }
+    }
+
+    // Style pour le dialog
+    .p-dialog {
+        .p-dialog-content {
+            padding: 1.5rem 2rem 2rem 2rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    }
+
+    // Transitions fluides
+    .p-inputtext, .p-inputnumber, .p-dropdown, .p-button {
+        transition: all 0.2s ease;
+    }
+}
+
+// Correctifs pour l'affichage sur mobile
+@media screen and (max-width: 768px) {
+    :host ::ng-deep {
+        .p-dialog {
+            width: 95vw !important;
+
+            .p-dialog-content {
+                padding: 1rem;
+            }
+        }
+
+        .field {
+            margin-bottom: 1rem;
+        }
+
+        .p-divider {
+            margin: 1rem 0;
+        }
+    }
+}

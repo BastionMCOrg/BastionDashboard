@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -8,7 +8,9 @@ import {Avatar} from 'primeng/avatar';
 import {Tooltip} from 'primeng/tooltip';
 import {ProgressBar} from 'primeng/progressbar';
 import {Tag} from 'primeng/tag';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective, ButtonIcon} from 'primeng/button';
+import {RouterLink} from '@angular/router';
+import {min} from 'rxjs';
 
 interface MiniGame {
     id: string;
@@ -41,7 +43,9 @@ interface MiniGame {
         Tooltip,
         ProgressBar,
         Tag,
-        Button
+        Button,
+        RouterLink,
+        ButtonIcon
     ],
     templateUrl: './minigame-list.component.html',
     styleUrl: 'minigame-list.component.scss',
@@ -157,4 +161,5 @@ export class MinigameListComponent {
         }
     ];
 
+    protected readonly min = min;
 }

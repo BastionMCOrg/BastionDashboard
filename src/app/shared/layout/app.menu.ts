@@ -36,12 +36,12 @@ export class AppMenu {
         {
           label: 'The Tower',
           icon: 'pi pi-fw pi-comments',
-          routerLink: ['/apps/chat']
+          routerLink: ['/minigames/TW01']
         },
         {
           label: 'Dodgeball',
           icon: 'pi pi-fw pi-folder',
-          routerLink: ['/apps/files']
+          routerLink: ['/minigames/DB03']
         },
         {
           label: 'CrazyRace',
