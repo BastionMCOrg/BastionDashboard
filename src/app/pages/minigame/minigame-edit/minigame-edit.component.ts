@@ -39,7 +39,6 @@ enum ServerType {
         MessagesModule,
         MessageModule,
         TextareaModule,
-        Select
     ]
 })
 export class MinigameEditComponent implements OnInit {
