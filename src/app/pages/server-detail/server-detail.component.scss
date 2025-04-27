@@ -133,6 +133,16 @@
             font-size: 0.875rem;
         }
     }
+
+    // Style du bouton scroll
+    .p-button-rounded.p-button-sm {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+
+        .p-button-icon {
+            font-size: 1.2rem;
+        }
+    }
 }
 
 // Style pour les sections de logs
@@ -160,6 +170,27 @@
             color: var(--p-blue-600);
         }
     }
+}
+
+// Animation pour le bouton scroll
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+// Style du conteneur du bouton de scroll
+.scroll-button-container {
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
 }
 
 // Animation pour les changements d'état

@@ -158,17 +158,39 @@
                     (onClick)="toggleFullscreenLogs()"
                 ></p-button>
             </div>
-            <div [class]="logsFullscreen ? 'h-full' : 'max-h-96'" class="w-full p-3 bg-surface-900 text-surface-0 font-mono text-sm overflow-auto rounded-md">
-                <div *ngFor="let line of filteredLogs" class="whitespace-pre-wrap mb-1">
-                    <ng-container [ngSwitch]="getLogLevel(line)">
-                        <span *ngSwitchCase="'error'" class="text-red-500">[ERROR] {{ line }}</span>
-                        <span *ngSwitchCase="'warn'" class="text-yellow-500">[WARN] {{ line }}</span>
-                        <span *ngSwitchCase="'info'" class="text-blue-500">[INFO] {{ line }}</span>
-                        <span *ngSwitchDefault>{{ line }}</span>
-                    </ng-container>
+            <!-- Container principal avec position relative pour positionner le bouton -->
+            <div class="relative">
+                <!-- Logs Container -->
+                <div
+                    #logsContainer
+                    [class]="logsFullscreen ? 'h-full' : 'h-[90vh]'"
+                    class="w-full p-3 bg-surface-900 text-surface-0 font-mono text-sm overflow-auto rounded-md relative"
+                    (scroll)="onLogsScroll()"
+                >
+                    <div *ngFor="let line of filteredLogs" class="whitespace-pre-wrap mb-1">
+                        <ng-container [ngSwitch]="getLogLevel(line)">
+                            <span *ngSwitchCase="'error'" class="text-red-500">[ERROR] {{ line }}</span>
+                            <span *ngSwitchCase="'warn'" class="text-yellow-500">[WARN] {{ line }}</span>
+                            <span *ngSwitchCase="'info'" class="text-blue-500">[INFO] {{ line }}</span>
+                            <span *ngSwitchDefault>{{ line }}</span>
+                        </ng-container>
+                    </div>
+                    <div *ngIf="filteredLogs.length === 0" class="text-center py-4 text-surface-400">
+                        Aucun log disponible pour le moment.
+                    </div>
                 </div>
-                <div *ngIf="filteredLogs.length === 0" class="text-center py-4 text-surface-400">
-                    Aucun log disponible pour le moment.
+
+                <!-- Bouton pour revenir en bas et réactiver l'auto-scroll -->
+                <div
+                    *ngIf="!autoScrollEnabled"
+                    class="absolute bottom-0 right-8 animate-bounce scroll-button-container"
+                >
+                    <p-button
+                        icon="pi pi-arrow-down"
+                        severity="info"
+                        styleClass="p-button-rounded p-button-sm"
+                        (onClick)="scrollToBottom(true)"
+                    ></p-button>
                 </div>
             </div>
 
