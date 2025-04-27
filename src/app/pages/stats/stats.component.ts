@@ -26,8 +26,8 @@ export class StatsComponent {
 
     minigame: Minigame = {
         id: 'TW01',
-        name: 'tower',
-        displayName: 'The Tower',
+        key: 'tower',
+        name: 'The Tower',
         description: 'Visualisez et gérez les instances du mini-jeu The Tower en cours d\'exécution.',
         developerNames: ['AlexCraft', 'MineBuildPro'],
         enabled: true,

@@ -53,7 +53,7 @@ export class ServerListComponent implements OnInit {
     @Input() minigameFilter: string | null = null;
 
     tableSearch = '';
-    selectedServer: ServerInstance | null = null;
+    selectedServer: any = null;
     loading = false;
     launchingServer = false;
 
@@ -69,7 +69,7 @@ export class ServerListComponent implements OnInit {
     ];
 
     // Données des serveurs avec pagination
-    servers: ServerInstance[] = [];
+    servers: any[] = [];
     totalRecords = 0;
     totalPages = 0;
 
@@ -110,7 +110,34 @@ export class ServerListComponent implements OnInit {
 
             const response = await this.minigameService.getAllInstances(params);
 
-            this.servers = response.content;
+            // Adapter les données provenant de Redis au format attendu par le composant
+            this.servers = response.content.map(server => {
+                console.log(server)
+                return ({
+                    id: server.name, // ID du serveur = nom dans Redis
+                    containerId: server.name, // Container ID = nom dans Redis
+                    minigame: server.gameType, // Type de jeu
+                    map: server.mapName || 'default', // Nom de la map
+                    startedAt: new Date(server.lastUpdate), // Date de dernière mise à jour
+                    status: this.mapRedisState(server.state), // État convertit au format du dashboard
+                    players: {
+                        current: server.connectedPlayers || 0, // Joueurs connectés
+                        max: server.maxPlayers || 16, // Joueurs maximum
+                        list: server.players || [] // Liste des joueurs
+                    },
+                    // Ajouter des données statiques pour ressources non disponibles dans Redis
+                    resources: {
+                        ram: {
+                            usage: 0.6, // Valeur statique de 60%
+                            total: 2.0 // Valeur statique de 2 GB
+                        },
+                        cpu: 25 // Valeur statique de 25%
+                    },
+                    tps: 19.8, // Valeur statique de 19.8 TPS
+                    color: 'blue' // Couleur par défaut
+                })
+            });
+
             this.totalRecords = response.totalElements;
             this.totalPages = response.totalPages;
 
@@ -124,13 +151,31 @@ export class ServerListComponent implements OnInit {
         }
     }
 
+    /**
+     * Convertit l'état Redis en état compréhensible par le dashboard
+     */
+    private mapRedisState(state: string): 'starting' | 'running' | 'stopped' {
+        switch (state) {
+            case 'PREPARING':
+            case 'STARTING':
+                return 'starting';
+            case 'WAITING':
+            case 'IN_GAME':
+                return 'running';
+            case 'FINISHED':
+                return 'stopped';
+            default:
+                return 'stopped';
+        }
+    }
+
     private async loadMinigameFilters() {
         try {
             const minigames = await this.minigameService.getMinigames();
 
             const filters = minigames.map(minigame => ({
                 label: minigame.name,
-                value: minigame.displayName
+                value: minigame.key
             }));
 
             this.minigameFilters = [
@@ -147,7 +192,7 @@ export class ServerListComponent implements OnInit {
             const minigames = await this.minigameService.getMinigames();
             this.availableMinigames = minigames.map(mg => ({
                 label: mg.name,
-                value: mg.displayName
+                value: mg.key
             }));
         } catch (error) {
             console.error('Erreur lors du chargement des mini-jeux disponibles:', error);
@@ -165,7 +210,7 @@ export class ServerListComponent implements OnInit {
         try {
             const result = await this.minigameService.startMinigameInstance(this.selectedMinigameToLaunch);
             this.quickLaunchDialogVisible = false;
-            this.router.navigate(['/servers', result.containerId]);
+            await this.router.navigate(['/servers', result.containerId]);
         } catch (error) {
             console.error('Erreur lors du lancement du serveur:', error);
         } finally {
@@ -184,7 +229,7 @@ export class ServerListComponent implements OnInit {
         await this.loadServers();
     }
 
-    public async stopServer(server: ServerInstance) {
+    public async stopServer(server: any) {
         try {
             await this.minigameService.stopMinigameInstance(
                 server.minigame,

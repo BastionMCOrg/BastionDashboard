@@ -3,13 +3,13 @@
     <div class="flex flex-wrap justify-between items-center">
         <div class="flex items-center gap-3">
             <p-avatar
-                [label]="getInitials(minigame.displayName)"
+                [label]="getInitials(minigame.name)"
                 styleClass="!w-11 !h-11 !text-lg font-medium"
                 [style]="{ backgroundColor: 'var(--p-' + minigame.color + '-100)', color: 'var(--p-' + minigame.color + '-950)' }"
                 shape="circle"
             />
             <div>
-                <h1 class="text-xl font-bold m-0">{{ minigame.displayName }}</h1>
+                <h1 class="text-xl font-bold m-0">{{ minigame.name }}</h1>
                 <p class="m-0 label-small dark:text-surface-400">
                     {{ minigame.description }}
                 </p>
@@ -81,7 +81,7 @@
     </section>
 
     <!-- Liste des serveurs -->
-    <app-server-list [minigameFilter]="minigame.displayName"></app-server-list>
+    <app-server-list [minigameFilter]="minigame.name"></app-server-list>
 </div>
 
 <!-- Dialogue de modification (pour la démo) -->

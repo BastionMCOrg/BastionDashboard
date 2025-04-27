@@ -10,6 +10,8 @@
             [(ngModel)]="selectedMinigameFilter"
             placeholder="Tous les mini-jeux"
             styleClass="w-48"
+            optionLabel="label"
+            optionValue="value"
             (onChange)="onFilterChange()"
         ></p-select>
         <p-icon-field>
@@ -96,7 +98,8 @@
                 <td style="width: 120px;">
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span>{{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }} / {{ server.resources.ram.total }} GB</span>
+                            <span>{{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }}
+                                / {{ server.resources.ram.total }} GB</span>
                         </div>
                         <p-progressBar
                             [value]="server.resources.ram.usage * 100"
@@ -185,6 +188,8 @@
             placeholder="Sélectionner un mini-jeu"
             [disabled]="launchingServer"
             styleClass="w-full"
+            optionLabel="label"
+            optionValue="value"
         ></p-select>
     </div>
 

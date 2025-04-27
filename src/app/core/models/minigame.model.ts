@@ -1,7 +1,7 @@
 export interface Minigame {
     id: string;
     name: string;
-    displayName: string;
+    key: string;
     description: string;
     icon?: string;
     developerNames: string[];
