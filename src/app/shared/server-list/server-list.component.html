@@ -50,9 +50,6 @@
                 <th>Mini-jeu</th>
                 <th>Map</th>
                 <th>Uptime</th>
-                <th>RAM</th>
-                <th>CPU</th>
-                <th>TPS</th>
                 <th>Joueurs</th>
                 <th style="width: 150px">Actions</th>
             </tr>
@@ -70,7 +67,7 @@
                             <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ server.id }}</span>
                         </div>
                         <div class="text-xs text-surface-500 dark:text-surface-400 mt-1 truncate">
-                            {{ server.containerId }}
+                            {{ server.minigame }}
                         </div>
                     </div>
                 </td>
@@ -94,41 +91,6 @@
                     <div class="label-xsmall text-left text-surface-950 dark:text-surface-0">
                         {{ getUptime(server.startedAt) }}
                     </div>
-                </td>
-                <td style="width: 120px;">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span>{{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }}
-                                / {{ server.resources.ram.total }} GB</span>
-                        </div>
-                        <p-progressBar
-                            [value]="server.resources.ram.usage * 100"
-                            [showValue]="false"
-                            [style]="{'height': '5px'}"
-                            [styleClass]="'!rounded-full ' + getRamStatusClass(server.resources.ram.usage)"
-                        />
-                    </div>
-                </td>
-                <td style="width: 120px;">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span>{{ server.resources.cpu.toFixed(1) }}%</span>
-                        </div>
-                        <p-progressBar
-                            [value]="server.resources.cpu"
-                            [showValue]="false"
-                            [style]="{'height': '5px'}"
-                            [styleClass]="'!rounded-full ' + getCpuStatusClass(server.resources.cpu)"
-                        />
-                    </div>
-                </td>
-                <td>
-                    <p-tag
-                        [severity]="getTpsSeverity(server.tps)"
-                        [value]="server.tps.toFixed(1)"
-                        styleClass="!px-2 !py-1 !rounded-lg"
-                        pTooltip="TPS optimal: 20"
-                    />
                 </td>
                 <td>
                     <div class="flex items-center gap-2">

@@ -8,7 +8,6 @@ import {MinigameService} from "../../core/services/minigame.service";
 @Component({
     selector: 'app-dashboard',
     imports: [
-        StatsComponent,
         ServerListComponent,
         ProgressSpinner,
         NgIf
