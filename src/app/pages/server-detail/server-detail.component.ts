@@ -1,22 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { AvatarModule } from 'primeng/avatar';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {AvatarModule} from 'primeng/avatar';
 
-import { ProgressBarModule } from 'primeng/progressbar';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule } from '@angular/forms';
-import { LineChart } from '../../shared/charts/linechart';
-import { CustomMeter } from '../../shared/charts/custommeter';
-import { generateRandomData } from '../../core/utils/utils';
-import { DropdownModule } from 'primeng/dropdown';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {FormsModule} from '@angular/forms';
+import {LineChart} from '../../shared/charts/linechart';
+import {generateRandomData} from '../../core/utils/utils';
+import {DropdownModule} from 'primeng/dropdown';
+import {IconFieldModule} from 'primeng/iconfield';
+import {InputIconModule} from 'primeng/inputicon';
 import {Severity} from '../../core/models/utils.model';
 
 interface Player {
@@ -80,7 +79,6 @@ interface Server {
         InputTextModule,
         FormsModule,
         LineChart,
-        CustomMeter,
         DropdownModule,
         IconFieldModule,
         InputIconModule
@@ -112,23 +110,24 @@ export class ServerDetailComponent implements OnInit {
 
     // Filtres de logs
     logLevels = [
-        { label: 'Tous les niveaux', value: 'all' },
-        { label: 'Info', value: 'info' },
-        { label: 'Avertissement', value: 'warn' },
-        { label: 'Erreur', value: 'error' }
+        {label: 'Tous les niveaux', value: 'all'},
+        {label: 'Info', value: 'info'},
+        {label: 'Avertissement', value: 'warn'},
+        {label: 'Erreur', value: 'error'}
     ];
     selectedLogLevel: string = 'all';
 
     // Options pour les graphiques
     timeRanges = [
-        { name: '30 minutes', value: 30 },
-        { name: '1 heure', value: 60 },
-        { name: '3 heures', value: 180 },
-        { name: '12 heures', value: 720 }
+        {name: '30 minutes', value: 30},
+        {name: '1 heure', value: 60},
+        {name: '3 heures', value: 180},
+        {name: '12 heures', value: 720}
     ];
     selectedTimeRange = this.timeRanges[1]; // 1 heure par défaut
 
-    constructor(private route: ActivatedRoute) {}
+    constructor(private route: ActivatedRoute) {
+    }
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {
@@ -328,10 +327,14 @@ export class ServerDetailComponent implements OnInit {
      */
     getStatusSeverity(status: string): Severity {
         switch (status) {
-            case 'running': return 'success';
-            case 'starting': return 'info';
-            case 'stopped': return 'danger';
-            default: return 'warn';
+            case 'running':
+                return 'success';
+            case 'starting':
+                return 'info';
+            case 'stopped':
+                return 'danger';
+            default:
+                return 'warn';
         }
     }
 
@@ -340,10 +343,14 @@ export class ServerDetailComponent implements OnInit {
      */
     getStatusDisplay(status: string): string {
         switch (status) {
-            case 'running': return 'Actif';
-            case 'starting': return 'Démarrage';
-            case 'stopped': return 'Arrêté';
-            default: return status;
+            case 'running':
+                return 'Actif';
+            case 'starting':
+                return 'Démarrage';
+            case 'stopped':
+                return 'Arrêté';
+            default:
+                return status;
         }
     }
 

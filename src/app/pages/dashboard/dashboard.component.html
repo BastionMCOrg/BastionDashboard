@@ -1,17 +1,10 @@
 <section class="flex flex-col [&>*]:py-8 [&>*:first-child]:!pt-0 [&>*:last-child]:!pb-0 divide-y divide-[var(--surface-border)]">
-    <app-stats/>
-    <p-tabs value="0">
-        <p-tablist>
-            <p-tab value="0">Mini-Jeux</p-tab>
-            <p-tab value="1">Serveurs</p-tab>
-        </p-tablist>
-        <p-tabpanels>
-            <p-tabpanel value="0">
-                <app-minigame-list/>
-            </p-tabpanel>
-            <p-tabpanel value="1">
-                <app-server-list/>
-            </p-tabpanel>
-        </p-tabpanels>
-    </p-tabs>
+    <div *ngIf="loading" class="flex justify-center items-center py-8">
+        <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"/>
+    </div>
+
+    <div *ngIf="!loading">
+        <app-stats/>
+        <app-server-list/>
+    </div>
 </section>

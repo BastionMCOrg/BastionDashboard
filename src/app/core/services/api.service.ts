@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { Observable, from } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import axios, { AxiosInstance } from 'axios';
 
 @Injectable({
     providedIn: 'root'
@@ -23,10 +21,6 @@ export class ApiService {
         // Intercepteur pour les requêtes
         this.api.interceptors.request.use(
             config => {
-                // Log de la requête en développement
-                if (window.location.hostname === 'localhost') {
-                    console.log(`📤 ${config.method?.toUpperCase()} ${config.url}`);
-                }
                 return config;
             },
             error => {
@@ -38,10 +32,8 @@ export class ApiService {
         // Intercepteur pour les réponses
         this.api.interceptors.response.use(
             response => {
-                // Log de la réponse en développement
-                if (window.location.hostname === 'localhost') {
-                    console.log(`📥 ${response.status} ${response.config.url}`);
-                }
+                // Log de la réponse
+                console.log(`📥 ${response.status} ${response.config.url}`, response.data);
                 return response;
             },
             error => {
@@ -58,43 +50,54 @@ export class ApiService {
     }
 
     /**
-     * Transformation d'une promesse Axios en Observable RxJS
-     */
-    private toObservable<T>(promise: Promise<AxiosResponse<T>>): Observable<T> {
-        return from(promise).pipe(
-            map(response => response.data),
-            catchError(error => {
-                // Rejeter l'erreur pour qu'elle soit capturée par le subscriber
-                throw error;
-            })
-        );
-    }
-
-    /**
      * Méthode GET générique
      */
-    public get<T>(url: string, params?: any): Observable<T> {
-        return this.toObservable<T>(this.api.get(url, { params }));
+    public async get<T>(url: string, params?: any): Promise<T> {
+        try {
+            const response = await this.api.get<T>(url, { params });
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur GET sur ${url}:`, error);
+            throw error;
+        }
     }
 
     /**
      * Méthode POST générique
      */
-    public post<T>(url: string, data?: any, params?: any): Observable<T> {
-        return this.toObservable<T>(this.api.post(url, data, { params }));
+    public async post<T>(url: string, data?: any, params?: any): Promise<T> {
+        try {
+            const response = await this.api.post<T>(url, data, { params });
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur POST sur ${url}:`, error);
+            throw error;
+        }
     }
 
     /**
      * Méthode PUT générique
      */
-    public put<T>(url: string, data?: any): Observable<T> {
-        return this.toObservable<T>(this.api.put(url, data));
+    public async put<T>(url: string, data?: any): Promise<T> {
+        try {
+            const response = await this.api.put<T>(url, data);
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur PUT sur ${url}:`, error);
+            throw error;
+        }
     }
 
     /**
      * Méthode DELETE générique
      */
-    public delete<T>(url: string): Observable<T> {
-        return this.toObservable<T>(this.api.delete(url));
+    public async delete<T>(url: string): Promise<T> {
+        try {
+            const response = await this.api.delete<T>(url);
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur DELETE sur ${url}:`, error);
+            throw error;
+        }
     }
 }

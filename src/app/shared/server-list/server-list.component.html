@@ -4,52 +4,43 @@
         <span class="mt-1 body-xsmall">Liste des serveurs actifs de BastionMC</span>
     </div>
     <div class="flex flex-wrap items-center gap-3.5">
-        <p-dropdown
+        <p-select
             *ngIf="!minigameFilter"
             [options]="minigameFilters"
             [(ngModel)]="selectedMinigameFilter"
-            optionLabel="name"
             placeholder="Tous les mini-jeux"
             styleClass="w-48"
-            (onChange)="filterServers()"
-        >
-            <ng-template pTemplate="selectedItem">
-                <div class="flex items-center gap-2" *ngIf="selectedMinigameFilter">
-                    <div
-                        class="w-3 h-3 rounded-full"
-                        [style.background-color]="'var(--p-' + (selectedMinigameFilter.color || 'blue') + '-500)'"
-                    ></div>
-                    <div>{{ selectedMinigameFilter.name }}</div>
-                </div>
-            </ng-template>
-            <ng-template let-minigame pTemplate="item">
-                <div class="flex items-center gap-2">
-                    <div
-                        class="w-3 h-3 rounded-full"
-                        [style.background-color]="'var(--p-' + (minigame.color || 'blue') + '-500)'"
-                    ></div>
-                    <div>{{ minigame.name }}</div>
-                </div>
-            </ng-template>
-        </p-dropdown>
+            (onChange)="onFilterChange()"
+        ></p-select>
         <p-icon-field>
             <p-inputicon class="pi pi-search"/>
             <input pInputText class="!rounded-lg !py-1.5 !w-56" [(ngModel)]="tableSearch"
-                   placeholder="Rechercher" (input)="filterServers()"/>
+                   placeholder="Rechercher" (keyup.enter)="onFilterChange()"/>
         </p-icon-field>
+        <p-button icon="pi pi-refresh" severity="secondary" [loading]="loading" (onClick)="loadServers()"></p-button>
+        <p-button icon="pi pi-play" label="Lancer" severity="success" (onClick)="openQuickLaunchDialog()"></p-button>
     </div>
 </div>
-<div class="w-full overflow-hidden">
+
+<div *ngIf="loading" class="flex justify-center items-center py-8">
+    <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"/>
+</div>
+
+<div *ngIf="!loading" class="w-full overflow-hidden">
     <p-table
-        [value]="filteredServers"
-        [rows]="7"
+        [value]="servers"
+        [rows]="paginationParams.size"
+        [totalRecords]="totalRecords"
         [paginator]="true"
         [showCurrentPageReport]="true"
-        currentPageReportTemplate="Page {currentPage} sur {totalPages}"
+        currentPageReportTemplate="Page {currentPage} sur {totalPages} ({totalRecords} serveurs)"
         [globalFilterFields]="['id', 'minigame', 'map']"
         [(selection)]="selectedServer"
         [filterDelay]="0"
         [rowHover]="true"
+        [lazy]="true"
+        (onPage)="onPageChange($event)"
+        emptyMessage="Aucun serveur trouvé"
     >
         <ng-template pTemplate="header">
             <tr>
@@ -70,14 +61,13 @@
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2">
                             <p-tag
-                                [severity]="$any(getStatusSeverity(server.status))"
+                                [severity]="getStatusSeverity(server.status)"
                                 [value]="getStatusDisplay(server.status)"
                                 [styleClass]="'!px-1.5 !py-1 !text-xs'"
                             ></p-tag>
                             <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ server.id }}</span>
                         </div>
-                        <div class="text-xs text-surface-500 dark:text-surface-400 mt-1 truncate"
-                             [pTooltip]="server.containerId" tooltipPosition="top">
+                        <div class="text-xs text-surface-500 dark:text-surface-400 mt-1 truncate">
                             {{ server.containerId }}
                         </div>
                     </div>
@@ -131,7 +121,7 @@
                 </td>
                 <td>
                     <p-tag
-                        [severity]="$any(getTpsSeverity(server.tps))"
+                        [severity]="getTpsSeverity(server.tps)"
                         [value]="server.tps.toFixed(1)"
                         styleClass="!px-2 !py-1 !rounded-lg"
                         pTooltip="TPS optimal: 20"
@@ -151,13 +141,6 @@
                 <td>
                     <div class="flex gap-2 items-center justify-end">
                         <p-button
-                            icon="pi pi-align-justify"
-                            severity="info"
-                            size="small"
-                            pTooltip="Voir les logs"
-                            tooltipPosition="top"
-                        />
-                        <p-button
                             icon="pi pi-info-circle"
                             severity="secondary"
                             size="small"
@@ -171,6 +154,7 @@
                             size="small"
                             pTooltip="Arrêter"
                             tooltipPosition="top"
+                            (onClick)="stopServer(server)"
                         />
                     </div>
                 </td>
@@ -179,26 +163,46 @@
     </p-table>
 </div>
 
-<!-- Dialog des logs -->
+<!-- Dialog de lancement rapide de serveur (simplifié) -->
 <p-dialog
-    header="Logs du serveur"
-    [(visible)]="logsDialogVisible"
-    [style]="{width: '70vw'}"
+    header="Lancer un serveur"
+    [(visible)]="quickLaunchDialogVisible"
+    [style]="{width: '400px'}"
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
+    [closable]="!launchingServer"
 >
-    <div class="w-full p-3 bg-surface-900 text-surface-0 font-mono text-sm h-96 overflow-auto rounded-md">
-        <div *ngFor="let line of serverLogs" class="whitespace-pre-wrap mb-1">
-            <ng-container [ngSwitch]="getLogLevel(line)">
-                <span *ngSwitchCase="'error'" class="text-red-500">[ERROR] {{ line }}</span>
-                <span *ngSwitchCase="'warn'" class="text-yellow-500">[WARN] {{ line }}</span>
-                <span *ngSwitchCase="'info'" class="text-blue-500">[INFO] {{ line }}</span>
-                <span *ngSwitchDefault>{{ line }}</span>
-            </ng-container>
+    <div class="p-fluid">
+        <div class="mb-3">
+            <p class="text-sm">Sélectionnez le mini-jeu à lancer :</p>
         </div>
+
+        <p-select
+            appendTo="body"
+            [options]="availableMinigames"
+            [(ngModel)]="selectedMinigameToLaunch"
+            placeholder="Sélectionner un mini-jeu"
+            [disabled]="launchingServer"
+            styleClass="w-full"
+        ></p-select>
     </div>
-    <div class="flex justify-end mt-4">
-        <p-button label="Fermer" icon="pi pi-times" (onClick)="logsDialogVisible = false"></p-button>
-    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Annuler"
+            icon="pi pi-times"
+            (onClick)="quickLaunchDialogVisible = false"
+            [disabled]="launchingServer"
+            styleClass="p-button-text"
+        ></p-button>
+        <p-button
+            label="Lancer"
+            icon="pi pi-play"
+            (onClick)="launchServer()"
+            [disabled]="!selectedMinigameToLaunch || launchingServer"
+            [loading]="launchingServer"
+            severity="success"
+        ></p-button>
+    </ng-template>
 </p-dialog>
