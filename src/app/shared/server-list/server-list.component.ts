@@ -12,6 +12,7 @@ import {Avatar} from 'primeng/avatar';
 import {ProgressBar} from 'primeng/progressbar';
 import {Button} from 'primeng/button';
 import {Dialog} from 'primeng/dialog';
+import {RouterLink} from '@angular/router';
 
 interface Server {
     id: string;
@@ -54,7 +55,8 @@ interface Server {
         NgForOf,
         NgSwitch,
         NgSwitchCase,
-        NgSwitchDefault
+        NgSwitchDefault,
+        RouterLink
     ],
     templateUrl: './server-list.component.html',
     standalone: true,

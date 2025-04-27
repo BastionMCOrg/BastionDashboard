@@ -1,0 +1,251 @@
+<div class="flex flex-col gap-6" *ngIf="server">
+    <!-- En-tête avec informations principales -->
+    <div class="flex flex-wrap gap-4 justify-between items-start">
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center">
+                <p-avatar
+                    [label]="server.minigame.charAt(0)"
+                    styleClass="!w-16 !h-16 !text-2xl font-medium"
+                    [style]="{ backgroundColor: 'var(--p-' + server.color + '-100)', color: 'var(--p-' + server.color + '-950)' }"
+                    shape="circle"
+                />
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold mb-0">{{ server.id }}</h1>
+                <p class="text-sm text-surface-500 dark:text-surface-400 mt-1 mb-0">
+                    {{ server.minigame }} &bull; {{ server.map }}
+                </p>
+                <div class="mt-2 flex flex-row items-center">
+                    <span class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md mr-2">
+                        <i class="pi pi-clock mr-1"></i> Uptime: {{ getUptime(server.startedAt) }}
+                    </span>
+                    <span class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md">
+                        <i class="pi pi-users mr-1"></i> {{ server.players.current }}/{{ server.players.max }} joueurs
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-2">
+            <p-button
+                label="Arrêter"
+                icon="pi pi-power-off"
+                severity="danger"
+                (onClick)="stopServer()"
+            ></p-button>
+        </div>
+    </div>
+
+    <!-- Section Performance - Graphiques -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <p-card styleClass="h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-lg font-medium m-0">RAM Usage</h3>
+                        <div class="text-3xl font-semibold mt-1">{{ (server.resources.ram.usage * 100).toFixed(1) }}%</div>
+                    </div>
+                    <p-dropdown
+                        [options]="timeRanges"
+                        [(ngModel)]="selectedTimeRange"
+                        optionLabel="name"
+                        (onChange)="onTimeRangeChange($event)"
+                        styleClass="w-36"
+                    ></p-dropdown>
+                </div>
+                <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
+                    {{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }} GB / {{ server.resources.ram.total }} GB
+                </div>
+                <p-progressBar
+                    [value]="server.resources.ram.usage * 100"
+                    [showValue]="false"
+                    [style]="{'height': '8px'}"
+                    [styleClass]="'!rounded-full ' + getRamStatusClass(server.resources.ram.usage)"
+                    class="mb-4"
+                />
+                <line-chart
+                    [datasets]="server.resources.ram.history"
+                    [bgColor]="ramBgColor"
+                    [borderColor]="ramBorderColor"
+                    option="minute"
+                    class="!max-h-40"
+                />
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-lg font-medium m-0">CPU Usage</h3>
+                        <div class="text-3xl font-semibold mt-1">{{ server.resources.cpu.usage.toFixed(1) }}%</div>
+                    </div>
+                </div>
+                <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
+                    Charge système actuelle
+                </div>
+                <p-progressBar
+                    [value]="server.resources.cpu.usage"
+                    [showValue]="false"
+                    [style]="{'height': '8px'}"
+                    [styleClass]="'!rounded-full ' + getCpuStatusClass(server.resources.cpu.usage)"
+                    class="mb-4"
+                />
+                <line-chart
+                    [datasets]="server.resources.cpu.history"
+                    [bgColor]="cpuBgColor"
+                    [borderColor]="cpuBorderColor"
+                    option="minute"
+                    class="!max-h-40"
+                />
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-lg font-medium m-0">TPS</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="text-3xl font-semibold">{{ server.tps.toFixed(1) }}</div>
+                            <p-tag
+                                [severity]="getTpsSeverity(server.tps)"
+                                [value]="server.tps >= 19 ? 'Excellent' : (server.tps >= 17 ? 'Bon' : 'Faible')"
+                                styleClass="!px-2 !py-1 !rounded-lg"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
+                    TPS Optimal: 20.0
+                </div>
+                <p-progressBar
+                    [value]="(server.tps / 20) * 100"
+                    [showValue]="false"
+                    [style]="{'height': '8px'}"
+                    [styleClass]="'!rounded-full ' + getTpsSeverity(server.tps) + '-progress'"
+                    class="mb-4"
+                />
+                <line-chart
+                    [datasets]="server.tpsHistory"
+                    [bgColor]="tpsBgColor"
+                    [borderColor]="tpsBorderColor"
+                    option="minute"
+                    class="!max-h-40"
+                />
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Section Logs -->
+    <p-card>
+        <ng-template pTemplate="header">
+            <div class="flex justify-between items-center p-3">
+                <h3 class="text-lg font-medium m-0">Logs du serveur</h3>
+                <div class="flex gap-2 items-center">
+                    <p-dropdown
+                        [options]="logLevels"
+                        [(ngModel)]="selectedLogLevel"
+                        (onChange)="filterLogs()"
+                        placeholder="Tous les niveaux"
+                        optionLabel="label"
+                        optionValue="value"
+                        styleClass="w-48"
+                    ></p-dropdown>
+                    <p-icon-field>
+                        <p-inputicon class="pi pi-search"/>
+                        <input
+                            pInputText
+                            [(ngModel)]="logFilter"
+                            (input)="filterLogs()"
+                            class="!rounded-lg !py-1.5"
+                            placeholder="Rechercher..."
+                        />
+                    </p-icon-field>
+                    <p-button
+                        icon="pi pi-arrows-alt"
+                        severity="secondary"
+                        pTooltip="Plein écran"
+                        (onClick)="toggleFullscreenLogs()"
+                    ></p-button>
+                </div>
+            </div>
+        </ng-template>
+        <div [class]="logsFullscreen ? 'fixed inset-0 z-50 p-4 bg-surface-800' : ''" class="transition-all duration-300">
+            <div *ngIf="logsFullscreen" class="absolute top-4 right-4">
+                <p-button
+                    icon="pi pi-times"
+                    severity="secondary"
+                    pTooltip="Fermer"
+                    (onClick)="toggleFullscreenLogs()"
+                ></p-button>
+            </div>
+            <div [class]="logsFullscreen ? 'h-full' : 'max-h-[calc(80vh)]'" class="w-full p-3 bg-surface-900 text-surface-0 font-mono text-sm overflow-auto rounded-md">
+                <div *ngFor="let line of filteredLogs" class="whitespace-pre-wrap mb-1">
+                    <ng-container [ngSwitch]="getLogLevel(line)">
+                        <span *ngSwitchCase="'error'" class="text-red-500">[ERROR] {{ line }}</span>
+                        <span *ngSwitchCase="'warn'" class="text-yellow-500">[WARN] {{ line }}</span>
+                        <span *ngSwitchCase="'info'" class="text-blue-500">[INFO] {{ line }}</span>
+                        <span *ngSwitchDefault>{{ line }}</span>
+                    </ng-container>
+                </div>
+                <div *ngIf="filteredLogs.length === 0" class="text-center py-4 text-surface-400">
+                    Aucun résultat trouvé pour votre recherche.
+                </div>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- Grille des joueurs -->
+    <p-card>
+        <ng-template pTemplate="header">
+            <div class="flex justify-between items-center p-3">
+                <h3 class="text-lg font-medium m-0">Joueurs connectés ({{server.players.current}})</h3>
+            </div>
+        </ng-template>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-2">
+            <div *ngFor="let player of server.players.list" class="flex flex-col items-center bg-surface-100 dark:bg-surface-800 rounded-lg p-3 hover:shadow-md transition-all duration-200">
+                <div class="relative mb-2">
+                    <img
+                        [src]="'https://mc-heads.net/avatar/' + player.uuid"
+                        [alt]="player.username"
+                        width="64"
+                        height="64"
+                        class="rounded-md"
+                    />
+                </div>
+                <div class="text-center mb-1">
+                    <div class="font-medium truncate w-24" [pTooltip]="player.username">{{ player.username }}</div>
+                    <div class="text-xs text-surface-500 truncate w-24" [pTooltip]="player.uuid">{{ player.uuid }}</div>
+                </div>
+                <div class="text-xs flex items-center justify-center gap-1 mb-2">
+                    <span>{{ player.ping }} ms</span>
+                    <span
+                        class="w-2 h-2 rounded-full"
+                        [ngClass]="{
+                            'bg-green-500': player.ping < 50,
+                            'bg-yellow-500': player.ping >= 50 && player.ping < 100,
+                            'bg-red-500': player.ping >= 100
+                        }"
+                    ></span>
+                </div>
+                <div class="flex gap-2 mt-auto">
+                    <p-button
+                        icon="pi pi-user-minus"
+                        severity="warn"
+                        size="small"
+                        pTooltip="Expulser"
+                        (onClick)="executePlayerCommand('kick ' + player.username)"
+                    ></p-button>
+                    <p-button
+                        icon="pi pi-ban"
+                        severity="danger"
+                        size="small"
+                        pTooltip="Bannir"
+                        (onClick)="executePlayerCommand('ban ' + player.username)"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    </p-card>
+</div>
