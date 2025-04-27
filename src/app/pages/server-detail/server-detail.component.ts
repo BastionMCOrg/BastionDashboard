@@ -82,6 +82,7 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
             this.serverId = params['id'];
             await this.loadServerData();
             this.connectToLogStream();
+            this.startTpsChecker();
         });
     }
 
@@ -243,6 +244,14 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
         });
     }
 
+    private startTpsChecker(): void {
+        setInterval(async() => {
+            if (!this.server) return;
+            const result = (await this.minigameService.executeRconCommand(this.serverId, "tps")).result;
+            this.server.tps = parseFloat(result.split("§6TPS from last 1m, 5m, 15m: §a")[1].split("§r,")[0]);
+        }, 5000); // Mettre à jour toutes les 5 secondes
+    }
+
     /**
      * Détermine le niveau de log en fonction du contenu
      */
@@ -281,7 +290,7 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
     /**
      * Exécute une commande sur un joueur (kick, ban, etc.)
      */
-    async executePlayerCommand(command: string): Promise<void> {
+    async executePlayerCommand(command: string): Promise<any> {
         try {
             await this.minigameService.executeRconCommand(this.serverId, command);
             // Recharger les données après un court délai
