@@ -9,9 +9,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { MinigameService } from '../../../core/services/minigame.service';
 import { Minigame } from '../../../core/models/minigame.model';
 import { getInitials } from '../../../core/utils/dashboard.utils';
-import { MinigameEditComponent } from '../../minigame/minigame-edit/minigame-edit.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
+import {MinigameEditComponent} from '../minigame-edit/minigame-edit.component';
 
 @Component({
     selector: 'app-minigame-grid',

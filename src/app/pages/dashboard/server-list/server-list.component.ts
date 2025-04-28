@@ -13,8 +13,6 @@ import {ProgressBar} from 'primeng/progressbar';
 import {Button} from 'primeng/button';
 import {Dialog} from 'primeng/dialog';
 import {Router, RouterLink} from '@angular/router';
-import {MinigameService, PaginationParams} from '../../core/services/minigame.service';
-import {ServerInstance} from '../../core/models/server-instance.model';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {
     getCpuStatusClass,
@@ -24,7 +22,8 @@ import {
     getStatusSeverity,
     getTpsSeverity,
     getUptime
-} from '../../core/utils/dashboard.utils';
+} from '../../../core/utils/dashboard.utils';
+import {MinigameService, PaginationParams} from '../../../core/services/minigame.service';
 
 @Component({
     selector: 'app-server-list',

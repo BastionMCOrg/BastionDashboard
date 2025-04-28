@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {ServerListComponent} from '../../shared/server-list/server-list.component';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {NgIf} from "@angular/common";
 import {MinigameService} from "../../core/services/minigame.service";
@@ -7,6 +6,7 @@ import {MinigameGridComponent} from './minigame-grid/minigame-grid.component';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ServerListComponent} from './server-list/server-list.component';
 
 @Component({
     selector: 'app-dashboard',

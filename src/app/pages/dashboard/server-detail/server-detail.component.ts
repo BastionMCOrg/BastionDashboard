@@ -13,10 +13,10 @@ import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { MinigameService } from '../../core/services/minigame.service';
-import { getCpuStatusClass, getRamStatusClass, getTpsSeverity, getUptime } from '../../core/utils/dashboard.utils';
-import { ServerStatsService } from '../../core/services/server-stats.service';
 import { Subscription } from 'rxjs';
+import {MinigameService} from '../../../core/services/minigame.service';
+import {ServerStatsService} from '../../../core/services/server-stats.service';
+import { getCpuStatusClass, getRamStatusClass, getTpsSeverity, getUptime } from '../../../core/utils/dashboard.utils';
 
 @Component({
     selector: 'app-server-detail',
