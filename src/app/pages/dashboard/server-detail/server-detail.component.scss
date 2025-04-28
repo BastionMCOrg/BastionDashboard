@@ -143,6 +143,37 @@
             font-size: 1.2rem;
         }
     }
+
+    // Style pour les toasts de notification
+    .p-toast {
+        .p-toast-message {
+            border-radius: 0.5rem;
+
+            &.p-toast-message-success {
+                background-color: var(--p-green-100);
+                color: var(--p-green-800);
+                border-left: 4px solid var(--p-green-500);
+            }
+
+            &.p-toast-message-info {
+                background-color: var(--p-blue-100);
+                color: var(--p-blue-800);
+                border-left: 4px solid var(--p-blue-500);
+            }
+
+            &.p-toast-message-warn {
+                background-color: var(--p-orange-100);
+                color: var(--p-orange-800);
+                border-left: 4px solid var(--p-orange-500);
+            }
+
+            &.p-toast-message-error {
+                background-color: var(--p-red-100);
+                color: var(--p-red-800);
+                border-left: 4px solid var(--p-red-500);
+            }
+        }
+    }
 }
 
 // Style pour les sections de logs
@@ -204,6 +235,22 @@
 
     &:hover {
         transform: scale(1.1);
+    }
+}
+
+// Animation pour les joueurs qui rejoignent
+.player-joined {
+    animation: player-joined-animation 3s ease-out;
+}
+
+@keyframes player-joined-animation {
+    0% {
+        background-color: var(--p-green-200);
+        transform: scale(1.05);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
     }
 }
 

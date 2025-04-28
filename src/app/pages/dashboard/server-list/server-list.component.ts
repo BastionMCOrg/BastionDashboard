@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Select, SelectItem} from 'primeng/select';
-import {NgIf} from '@angular/common';
+import {NgClass, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -24,6 +24,10 @@ import {
     getUptime
 } from '../../../core/utils/dashboard.utils';
 import {MinigameService, PaginationParams} from '../../../core/services/minigame.service';
+import { ServerStatsService, ServerNotification } from '../../../core/services/server-stats.service';
+import { MessageService } from 'primeng/api';
+import { Subscription } from 'rxjs';
+import {Toast} from 'primeng/toast';
 
 @Component({
     selector: 'app-server-list',
@@ -42,13 +46,16 @@ import {MinigameService, PaginationParams} from '../../../core/services/minigame
         Button,
         Dialog,
         RouterLink,
-        ProgressSpinner
+        ProgressSpinner,
+        Toast,
+        NgClass
     ],
     templateUrl: './server-list.component.html',
     standalone: true,
-    styleUrl: './server-list.component.scss'
+    styleUrl: './server-list.component.scss',
+    providers: [MessageService]
 })
-export class ServerListComponent implements OnInit {
+export class ServerListComponent implements OnInit, OnDestroy {
     @Input() minigameFilter: string | null = null;
 
     tableSearch = '';
@@ -78,16 +85,30 @@ export class ServerListComponent implements OnInit {
         size: 10
     };
 
+    // Subscriptions WebSocket
+    private serverCreatedSubscription: Subscription | null = null;
+    private serverUpdatedSubscription: Subscription | null = null;
+    private serverDeletedSubscription: Subscription | null = null;
+
     constructor(
         private minigameService: MinigameService,
+        private serverStatsService: ServerStatsService,
+        private messageService: MessageService,
         private router: Router
-    ) {
-    }
+    ) {}
 
     public async ngOnInit() {
         await this.loadMinigameFilters();
         await this.loadAvailableMinigames();
         await this.loadServers();
+
+        // S'abonner aux notifications de serveurs
+        this.subscribeToServerNotifications();
+    }
+
+    public ngOnDestroy() {
+        // Se désabonner des notifications
+        this.unsubscribeFromServerNotifications();
     }
 
     protected async loadServers() {
@@ -110,31 +131,7 @@ export class ServerListComponent implements OnInit {
             const response = await this.minigameService.getAllInstances(params);
 
             // Adapter les données provenant de Redis au format attendu par le composant
-            this.servers = response.content.map(server => {
-                return ({
-                    id: server.name, // ID du serveur = nom dans Redis
-                    containerId: server.name, // Container ID = nom dans Redis
-                    minigame: server.gameType, // Type de jeu
-                    map: server.mapName || 'default', // Nom de la map
-                    startedAt: new Date(server.lastUpdate), // Date de dernière mise à jour
-                    status: this.mapRedisState(server.state), // État convertit au format du dashboard
-                    players: {
-                        current: server.connectedPlayers || 0, // Joueurs connectés
-                        max: server.maxPlayers || 16, // Joueurs maximum
-                        list: server.players || [] // Liste des joueurs
-                    },
-                    // Ajouter des données statiques pour ressources non disponibles dans Redis
-                    resources: {
-                        ram: {
-                            usage: 0.6, // Valeur statique de 60%
-                            total: 2.0 // Valeur statique de 2 GB
-                        },
-                        cpu: 25 // Valeur statique de 25%
-                    },
-                    tps: 19.8, // Valeur statique de 19.8 TPS
-                    color: 'blue' // Couleur par défaut
-                })
-            });
+            this.servers = response.content.map(server => this.formatServerData(server));
 
             this.totalRecords = response.totalElements;
             this.totalPages = response.totalPages;
@@ -147,6 +144,35 @@ export class ServerListComponent implements OnInit {
         } finally {
             this.loading = false;
         }
+    }
+
+    /**
+     * Formate les données du serveur pour l'affichage
+     */
+    private formatServerData(server: any) {
+        return {
+            id: server.name, // ID du serveur = nom dans Redis
+            containerId: server.name, // Container ID = nom dans Redis
+            minigame: server.gameType, // Type de jeu
+            map: server.mapName || 'default', // Nom de la map
+            startedAt: new Date(server.lastUpdate), // Date de dernière mise à jour
+            status: this.mapRedisState(server.state), // État convertit au format du dashboard
+            players: {
+                current: server.connectedPlayers || 0, // Joueurs connectés
+                max: server.maxPlayers || 16, // Joueurs maximum
+                list: server.players || [] // Liste des joueurs
+            },
+            // Ajouter des données statiques pour ressources non disponibles dans Redis
+            resources: {
+                ram: {
+                    usage: 0.6, // Valeur statique de 60%
+                    total: 2.0 // Valeur statique de 2 GB
+                },
+                cpu: 25 // Valeur statique de 25%
+            },
+            tps: 19.8, // Valeur statique de 19.8 TPS
+            color: 'blue' // Couleur par défaut
+        };
     }
 
     /**
@@ -165,6 +191,141 @@ export class ServerListComponent implements OnInit {
             default:
                 return 'stopped';
         }
+    }
+
+    /**
+     * S'abonne aux notifications de serveurs
+     */
+    private subscribeToServerNotifications() {
+        // S'abonner au service WebSocket
+        this.serverStatsService.subscribeToServerNotifications();
+
+        // S'abonner aux notifications de création
+        this.serverCreatedSubscription = this.serverStatsService.getServerCreatedNotifications()
+            .subscribe(notification => this.handleServerCreated(notification));
+
+        // S'abonner aux notifications de mise à jour
+        this.serverUpdatedSubscription = this.serverStatsService.getServerUpdatedNotifications()
+            .subscribe(notification => this.handleServerUpdated(notification));
+
+        // S'abonner aux notifications de suppression
+        this.serverDeletedSubscription = this.serverStatsService.getServerDeletedNotifications()
+            .subscribe(notification => this.handleServerDeleted(notification));
+    }
+
+    /**
+     * Se désabonne des notifications de serveurs
+     */
+    private unsubscribeFromServerNotifications() {
+        if (this.serverCreatedSubscription) {
+            this.serverCreatedSubscription.unsubscribe();
+            this.serverCreatedSubscription = null;
+        }
+
+        if (this.serverUpdatedSubscription) {
+            this.serverUpdatedSubscription.unsubscribe();
+            this.serverUpdatedSubscription = null;
+        }
+
+        if (this.serverDeletedSubscription) {
+            this.serverDeletedSubscription.unsubscribe();
+            this.serverDeletedSubscription = null;
+        }
+
+        this.serverStatsService.unsubscribeFromServerNotifications();
+    }
+
+    /**
+     * Gère la notification de création de serveur
+     */
+    private handleServerCreated(notification: ServerNotification) {
+        // Vérifier si le serveur correspond au filtre actuel
+        if (this.shouldShowServer(notification.gameType)) {
+            // Ajouter le nouveau serveur à la liste
+            if (notification.serverData) {
+                const formattedServer = this.formatServerData(notification.serverData);
+
+                // S'assurer que le serveur n'existe pas déjà dans la liste
+                const existingIndex = this.servers.findIndex(s => s.id === formattedServer.id);
+                if (existingIndex === -1) {
+                    this.servers = [formattedServer, ...this.servers];
+                    this.totalRecords++;
+
+                    // Notification
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Nouveau serveur',
+                        detail: `Le serveur ${formattedServer.id} a été créé`
+                    });
+                }
+            } else {
+                // Si on n'a pas les données complètes, recharger la liste
+                this.loadServers();
+            }
+        }
+    }
+
+    /**
+     * Gère la notification de mise à jour de serveur
+     */
+    private handleServerUpdated(notification: ServerNotification) {
+        console.log('Server updated:', notification);
+        // Rechercher le serveur dans la liste
+        const existingIndex = this.servers.findIndex(s => s.id === notification.serverId);
+
+        if (existingIndex !== -1) {
+            // Mettre à jour le serveur existant
+            if (notification.serverData) {
+                const updatedServer = this.formatServerData(notification.serverData);
+                this.servers[existingIndex] = updatedServer;
+
+                // Déclencher la détection de changements (en créant un nouveau tableau)
+                this.servers = [...this.servers];
+            }
+        } else if (this.shouldShowServer(notification.gameType)) {
+            // Si le serveur n'est pas dans la liste mais correspond au filtre, recharger
+            this.loadServers();
+        }
+    }
+
+    /**
+     * Gère la notification de suppression de serveur
+     */
+    private handleServerDeleted(notification: ServerNotification) {
+        // Rechercher le serveur dans la liste
+        const existingIndex = this.servers.findIndex(s => s.id === notification.serverId);
+
+        if (existingIndex !== -1) {
+            // Supprimer le serveur de la liste
+            this.servers.splice(existingIndex, 1);
+            this.totalRecords--;
+
+            // Déclencher la détection de changements (en créant un nouveau tableau)
+            this.servers = [...this.servers];
+
+            // Notification
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Serveur arrêté',
+                detail: `Le serveur ${notification.serverId} a été arrêté`
+            });
+        }
+    }
+
+    /**
+     * Vérifie si un serveur doit être affiché selon les filtres actuels
+     */
+    private shouldShowServer(gameType: string): boolean {
+        if (this.minigameFilter) {
+            // Si on a un filtre de minigame externe, vérifier s'il correspond
+            return gameType === this.minigameFilter;
+        } else if (this.selectedMinigameFilter && this.selectedMinigameFilter !== 'all') {
+            // Si on a un filtre de minigame sélectionné, vérifier s'il correspond
+            return gameType === this.selectedMinigameFilter;
+        }
+
+        // Si aucun filtre, afficher tous les serveurs
+        return true;
     }
 
     private async loadMinigameFilters() {
@@ -233,7 +394,8 @@ export class ServerListComponent implements OnInit {
                 server.minigame,
                 server.containerId
             );
-            await this.loadServers();
+            // Pas besoin de recharger manuellement, les notifications WebSocket s'en chargeront
+            // await this.loadServers();
         } catch (error) {
             console.error(`Erreur lors de l'arrêt du serveur ${server.id}:`, error);
         }

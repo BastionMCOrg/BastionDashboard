@@ -22,6 +22,11 @@
                     <span class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md">
                         <i class="pi pi-users mr-1"></i> {{ server.players.current }}/{{ server.players.max }} joueurs
                     </span>
+                    <p-tag
+                        [severity]="getStatusSeverity(server.status)"
+                        [value]="getStatusDisplay(server.status)"
+                        styleClass="ml-2 !px-2 !py-1"
+                    ></p-tag>
                 </div>
             </div>
         </div>
@@ -228,7 +233,9 @@
             </div>
         </ng-template>
         <div *ngIf="server.players.current > 0; else noPlayers" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-2">
-            <div *ngFor="let player of server.players.list" class="flex flex-col items-center bg-surface-100 dark:bg-surface-800 rounded-lg p-3 hover:shadow-md transition-all duration-200">
+            <div *ngFor="let player of server.players.list"
+                 class="flex flex-col items-center rounded-lg p-3 hover:shadow-md transition-all duration-200"
+                 [ngClass]="{'bg-surface-100 dark:bg-surface-800': !getPlayerClass(player), 'bg-green-50 dark:bg-green-900 player-joined': getPlayerClass(player) === 'joined'}">
                 <div class="relative mb-2">
                     <img
                         [src]="'https://mc-heads.net/avatar/' + player"
@@ -259,4 +266,7 @@
             </div>
         </ng-template>
     </p-card>
+
+    <!-- Toast pour les notifications -->
+    <p-toast></p-toast>
 </div>

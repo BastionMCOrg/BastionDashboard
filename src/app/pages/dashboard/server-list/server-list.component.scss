@@ -6,6 +6,12 @@
 
         .p-datatable-tbody > tr {
             background: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Style pour mettre en évidence les nouveaux serveurs */
+        .p-datatable-tbody > tr.highlight-row {
+            animation: highlight-animation 2s ease-out;
         }
 
         .p-datatable-tbody > tr.p-datatable-row-selected > td,
@@ -72,5 +78,68 @@
             font-weight: 500;
             font-size: 0.875rem;
         }
+    }
+
+    /* Style pour les toasts de notification */
+    .p-toast {
+        .p-toast-message {
+            border-radius: 0.5rem;
+
+            &.p-toast-message-success {
+                background-color: var(--p-green-100);
+                color: var(--p-green-800);
+                border-left: 4px solid var(--p-green-500);
+            }
+
+            &.p-toast-message-info {
+                background-color: var(--p-blue-100);
+                color: var(--p-blue-800);
+                border-left: 4px solid var(--p-blue-500);
+            }
+
+            &.p-toast-message-warn {
+                background-color: var(--p-orange-100);
+                color: var(--p-orange-800);
+                border-left: 4px solid var(--p-orange-500);
+            }
+
+            &.p-toast-message-error {
+                background-color: var(--p-red-100);
+                color: var(--p-red-800);
+                border-left: 4px solid var(--p-red-500);
+            }
+        }
+    }
+}
+
+/* Animation pour mettre en évidence les nouveaux serveurs */
+@keyframes highlight-animation {
+    0% {
+        background-color: var(--p-blue-50);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Animation pour les lignes qui sont mises à jour */
+@keyframes update-animation {
+    0% {
+        background-color: var(--p-green-50);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Animation pour les lignes qui vont être supprimées */
+@keyframes delete-animation {
+    0% {
+        background-color: var(--p-red-50);
+    }
+    100% {
+        opacity: 0;
+        height: 0;
+        transform: translateY(-20px);
     }
 }

@@ -14,9 +14,17 @@ import { DropdownModule } from 'primeng/dropdown';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Subscription } from 'rxjs';
-import {MinigameService} from '../../../core/services/minigame.service';
-import {ServerStatsService} from '../../../core/services/server-stats.service';
-import { getCpuStatusClass, getRamStatusClass, getTpsSeverity, getUptime } from '../../../core/utils/dashboard.utils';
+import { MinigameService } from '../../../core/services/minigame.service';
+import { ServerStatsService, ServerNotification } from '../../../core/services/server-stats.service';
+import {
+    getCpuStatusClass,
+    getRamStatusClass, getStatusDisplay,
+    getStatusSeverity,
+    getTpsSeverity,
+    getUptime
+} from '../../../core/utils/dashboard.utils';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-server-detail',
@@ -36,8 +44,10 @@ import { getCpuStatusClass, getRamStatusClass, getTpsSeverity, getUptime } from 
         FormsModule,
         DropdownModule,
         IconFieldModule,
-        InputIconModule
-    ]
+        InputIconModule,
+        ToastModule
+    ],
+    providers: [MessageService]
 })
 export class ServerDetailComponent implements OnInit, OnDestroy {
     // Références DOM
@@ -71,6 +81,13 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
     private readonly SCROLL_THRESHOLD = 30;
     private statsSubscription: Subscription | null = null;
 
+    // Nouvelles subscriptions pour les notifications de serveur
+    private serverUpdatedSubscription: Subscription | null = null;
+    private serverDeletedSubscription: Subscription | null = null;
+
+    // Flag pour animation des joueurs qui rejoignent/quittent
+    playerAnimations: {[key: string]: string} = {};
+
     // Options de filtrage des logs
     logLevels = [
         {label: 'Tous les niveaux', value: 'all'},
@@ -82,7 +99,8 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private minigameService: MinigameService,
-        private serverStatsService: ServerStatsService
+        private serverStatsService: ServerStatsService,
+        private messageService: MessageService
     ) {}
 
     ngOnInit(): void {
@@ -94,7 +112,6 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
             // S'abonner aux statistiques en temps réel
             this.serverStatsService.watchServer(this.serverId);
             this.statsSubscription = this.serverStatsService.getStats().subscribe(stats => {
-                console.log('Received stats:', stats);
                 if (stats && this.server) {
                     // Mettre à jour les statistiques en temps réel
                     this.server.resources = {
@@ -108,6 +125,9 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
                     };
                 }
             });
+
+            // S'abonner aux notifications de serveurs
+            this.subscribeToServerNotifications();
         });
     }
 
@@ -120,8 +140,137 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
             this.statsSubscription.unsubscribe();
         }
 
+        // Désabonner des notifications de serveur
+        this.unsubscribeFromServerNotifications();
+
         this.serverStatsService.unwatchCurrentServer();
         document.body.style.overflow = '';
+    }
+
+    /**
+     * S'abonne aux notifications de serveurs
+     */
+    private subscribeToServerNotifications() {
+        // S'abonner au service WebSocket
+        this.serverStatsService.subscribeToServerNotifications();
+
+        // S'abonner aux notifications de mise à jour
+        this.serverUpdatedSubscription = this.serverStatsService.getServerUpdatedNotifications()
+            .subscribe(notification => {
+                if (notification.serverId === this.serverId && notification.serverData) {
+                    this.handleServerUpdate(notification.serverData);
+                }
+            });
+
+        // S'abonner aux notifications de suppression
+        this.serverDeletedSubscription = this.serverStatsService.getServerDeletedNotifications()
+            .subscribe(notification => {
+                if (notification.serverId === this.serverId) {
+                    // Le serveur a été arrêté, afficher un message et recharger les données
+                    this.messageService.add({
+                        severity: 'info',
+                        summary: 'Serveur arrêté',
+                        detail: 'Ce serveur a été arrêté'
+                    });
+
+                    // Actualiser les données du serveur
+                    this.loadServerData();
+                }
+            });
+    }
+
+    /**
+     * Se désabonne des notifications de serveurs
+     */
+    private unsubscribeFromServerNotifications() {
+        if (this.serverUpdatedSubscription) {
+            this.serverUpdatedSubscription.unsubscribe();
+            this.serverUpdatedSubscription = null;
+        }
+
+        if (this.serverDeletedSubscription) {
+            this.serverDeletedSubscription.unsubscribe();
+            this.serverDeletedSubscription = null;
+        }
+    }
+
+    /**
+     * Gère les mises à jour des informations du serveur
+     */
+    private handleServerUpdate(serverData: any) {
+        if (!this.server) return;
+
+        // Sauvegarde de l'état précédent pour comparaison
+        const previousPlayers = [...(this.server.players.list || [])];
+        const newPlayersList = serverData.players || [];
+
+        // Mise à jour des joueurs avec détection des changements
+        this.updatePlayersList(previousPlayers, newPlayersList);
+
+        // Mise à jour des autres informations du serveur
+        this.server.status = this.mapRedisState(serverData.state);
+        this.server.players.current = serverData.connectedPlayers || 0;
+        this.server.players.max = serverData.maxPlayers || 16;
+    }
+
+    /**
+     * Met à jour la liste des joueurs avec détection des joueurs qui rejoignent/quittent
+     */
+    private updatePlayersList(previousPlayers: string[], newPlayers: string[]) {
+        // Identifier les joueurs qui ont rejoint le serveur
+        const joinedPlayers = newPlayers.filter(player => !previousPlayers.includes(player));
+
+        // Identifier les joueurs qui ont quitté le serveur
+        const leftPlayers = previousPlayers.filter(player => !newPlayers.includes(player));
+
+        // Mettre à jour la liste des joueurs dans le serveur
+        this.server.players.list = newPlayers;
+
+        // Afficher des notifications pour les joueurs qui rejoignent/quittent
+        if (joinedPlayers.length > 0) {
+            // Marquer les nouveaux joueurs pour animation
+            joinedPlayers.forEach(player => {
+                this.playerAnimations[player] = 'joined';
+
+                // Enlever l'animation après 3 secondes
+                setTimeout(() => {
+                    this.playerAnimations[player] = '';
+                }, 3000);
+            });
+
+            // Afficher une notification toast
+            if (joinedPlayers.length === 1) {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Joueur connecté',
+                    detail: `${joinedPlayers[0]} a rejoint le serveur`
+                });
+            } else {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Joueurs connectés',
+                    detail: `${joinedPlayers.length} joueurs ont rejoint le serveur`
+                });
+            }
+        }
+
+        if (leftPlayers.length >
+            0) {
+            // Afficher une notification toast
+            if (leftPlayers.length === 1) {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Joueur déconnecté',
+                    detail: `${leftPlayers[0]} a quitté le serveur`
+                });
+            } else {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Joueurs déconnectés',
+                    detail: `${leftPlayers.length} joueurs ont quitté le serveur`
+                });
+            }
+        }
     }
 
     @HostListener('document:keydown.escape', ['$event'])
@@ -234,19 +383,54 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
     async stopServer(): Promise<void> {
         try {
             await this.minigameService.stopMinigameInstance(this.server.minigame, this.server.id);
-            setTimeout(() => this.loadServerData(), 1000);
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Serveur arrêté',
+                detail: 'Le serveur a été arrêté avec succès'
+            });
+
+            // Pas besoin de recharger manuellement, les notifications WebSocket s'en chargeront
+            // setTimeout(() => this.loadServerData(), 1000);
         } catch (error) {
             console.error('Erreur lors de l\'arrêt du serveur:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: 'Impossible d\'arrêter le serveur'
+            });
         }
     }
 
     async executePlayerCommand(command: string): Promise<void> {
         try {
             await this.minigameService.executeRconCommand(this.serverId, command);
-            setTimeout(() => this.loadServerData(), 1000);
+
+            if (command.startsWith('kick')) {
+                const playerName = command.split(' ')[1];
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Joueur expulsé',
+                    detail: `${playerName} a été expulsé du serveur`
+                });
+            }
+
+            // Pas besoin de recharger manuellement, les notifications WebSocket s'en chargeront
+            // setTimeout(() => this.loadServerData(), 1000);
         } catch (error) {
             console.error(`Erreur lors de l'exécution de la commande ${command}:`, error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: `Impossible d'exécuter la commande: ${command}`
+            });
         }
+    }
+
+    /**
+     * Classe CSS pour l'animation des joueurs
+     */
+    getPlayerClass(playerName: string): string {
+        return this.playerAnimations[playerName] || '';
     }
 
     // Méthodes privées
@@ -282,6 +466,11 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
             };
         } catch (error) {
             console.error('Erreur lors du chargement des données du serveur:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: 'Impossible de charger les données du serveur'
+            });
         }
     }
 
@@ -328,4 +517,7 @@ export class ServerDetailComponent implements OnInit, OnDestroy {
             setTimeout(() => this.connectToLogStream(), 5000);
         };
     }
+
+    protected readonly getStatusSeverity = getStatusSeverity;
+    protected readonly getStatusDisplay = getStatusDisplay;
 }
