@@ -112,7 +112,6 @@ export class ServerListComponent implements OnInit {
 
             // Adapter les données provenant de Redis au format attendu par le composant
             this.servers = response.content.map(server => {
-                console.log(server)
                 return ({
                     id: server.name, // ID du serveur = nom dans Redis
                     containerId: server.name, // Container ID = nom dans Redis

@@ -38,15 +38,17 @@
                 </div>
             </div>
 
-            <div class="field">
-                <label for="description">Description</label>
-                <textarea
-                    class="w-full"
-                    id="description"
-                    pTextarea
-                    formControlName="description"
-                    [rows]="3"
-                ></textarea>
+            <div class="col-12">
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea
+                        class="w-full"
+                        id="description"
+                        pTextarea
+                        formControlName="description"
+                        [rows]="3"
+                    ></textarea>
+                </div>
             </div>
 
             <div class="col-12">
@@ -78,105 +80,147 @@
             </div>
 
             <!-- Section: Configuration du jeu -->
+            <!-- CORRECTION: Utilisation correcte de formGroupName -->
+            <div class="col-12">
+                <div formGroupName="gameSettings">
+                    <div class="grid">
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                <label for="minPlayers">Joueurs minimum*</label>
+                                <p-inputNumber
+                                    id="minPlayers"
+                                    [min]="1"
+                                    [max]="100"
+                                    [showButtons]="true"
+                                    formControlName="minPlayers"
+                                ></p-inputNumber>
+                            </div>
+                        </div>
 
-            <div class="grid grid-cols-12 gap-2">
-                <div class="col-span-4 field">
-                    <label for="minPlayers">Joueurs minimum*</label>
-                    <p-inputNumber
-                        id="minPlayers"
-                        [min]="1"
-                        [max]="100"
-                        [showButtons]="true"
-                        formControlName="minPlayers"
-                        formGroupName="gameSettings"
-                    ></p-inputNumber>
-                </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                <label for="maxPlayers">Joueurs maximum*</label>
+                                <p-inputNumber
+                                    id="maxPlayers"
+                                    [min]="1"
+                                    [max]="100"
+                                    [showButtons]="true"
+                                    formControlName="maxPlayers"
+                                ></p-inputNumber>
+                            </div>
+                        </div>
 
-                <div class="col-span-4 field">
-                    <label for="maxPlayers">Joueurs maximum*</label>
-                    <p-inputNumber
-                        id="maxPlayers"
-                        [min]="1"
-                        [max]="100"
-                        [showButtons]="true"
-                        formControlName="maxPlayers"
-                        formGroupName="gameSettings"
-                    ></p-inputNumber>
-                </div>
-
-                <div class="col-span-4 field">
-                    <label for="minimalInstanceCount">Instances minimales</label>
-                    <p-inputNumber
-                        id="minimalInstanceCount"
-                        [min]="0"
-                        [max]="10"
-                        [showButtons]="true"
-                        formControlName="minimalInstanceCount"
-                        formGroupName="gameSettings"
-                    ></p-inputNumber>
-                    <small>Nombre minimum d'instances à maintenir actives</small>
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                <label for="minimalInstanceCount">Instances minimales</label>
+                                <p-inputNumber
+                                    id="minimalInstanceCount"
+                                    [min]="0"
+                                    [max]="10"
+                                    [showButtons]="true"
+                                    formControlName="minimalInstanceCount"
+                                ></p-inputNumber>
+                                <small>Nombre minimum d'instances à maintenir actives</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Section: Configuration technique -->
+            <div class="col-12">
+                <div formGroupName="serverSettings">
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="memory">Mémoire allouée*</label>
+                                <input
+                                    id="memory"
+                                    type="text"
+                                    pInputText
+                                    formControlName="memory"
+                                    pTooltip="Format: 2G ou 512M"
+                                />
+                                <small
+                                    *ngIf="minigameForm.get('serverSettings.memory')?.invalid && minigameForm.get('serverSettings.memory')?.touched"
+                                    class="p-error">
+                                    Format requis: "2G" ou "512M"
+                                </small>
+                            </div>
+                        </div>
 
-            <div class="grid grid-cols-12 gap-2" formGroupName="serverSettings">
-                <div class="col-span-6 field">
-                    <label for="memory">Mémoire allouée*</label>
-                    <input
-                        id="memory"
-                        type="text"
-                        pInputText
-                        formControlName="memory"
-                        pTooltip="Format: 2G ou 512M"
-                    />
-                    <small
-                        *ngIf="minigameForm.get('serverSettings.memory')?.invalid && minigameForm.get('serverSettings.memory')?.touched"
-                        class="p-error">
-                        Format requis: "2G" ou "512M"
-                    </small>
-                </div>
-
-                <div class="col-span-6 field">
-                    <label for="cpu">CPU alloués*</label>
-                    <p-inputNumber
-                        id="cpu"
-                        formControlName="cpu"
-                        [min]="1"
-                        [max]="8"
-                        [showButtons]="true"
-                    ></p-inputNumber>
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="cpu">CPU alloués*</label>
+                                <p-inputNumber
+                                    id="cpu"
+                                    formControlName="cpu"
+                                    [min]="1"
+                                    [max]="8"
+                                    [showButtons]="true"
+                                ></p-inputNumber>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Section: Configuration Docker -->
-
-            <div class="col-12" formGroupName="dockerSettings">
-                <!-- Variables d'environnement -->
-                <div class="field">
-                    <label>Variables d'environnement</label>
-                    <div formArrayName="env">
-                        <div *ngFor="let env of envVars.controls; let i = index" [formGroupName]="i"
-                             class="flex items-center gap-2 mb-2">
-                            <input pInputText formControlName="key" placeholder="Clé" class="flex-1"/>
-                            <input pInputText formControlName="value" placeholder="Valeur" class="flex-1"/>
+            <div class="col-12">
+                <div formGroupName="dockerSettings">
+                    <!-- Variables d'environnement -->
+                    <div class="field">
+                        <label>Variables d'environnement</label>
+                        <div formArrayName="env">
+                            <div *ngFor="let env of envVars.controls; let i = index" [formGroupName]="i"
+                                 class="flex items-center gap-2 mb-2">
+                                <input pInputText formControlName="key" placeholder="Clé" class="flex-1"/>
+                                <input pInputText formControlName="value" placeholder="Valeur" class="flex-1"/>
+                                <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-trash"
+                                    class="p-button-danger p-button-sm"
+                                    (click)="removeEnvVar(i)"
+                                ></button>
+                            </div>
                             <button
                                 pButton
                                 type="button"
-                                icon="pi pi-trash"
-                                class="p-button-danger p-button-sm"
-                                (click)="removeEnvVar(i)"
+                                label="Ajouter une variable"
+                                icon="pi pi-plus"
+                                class="p-button-outlined p-button-secondary"
+                                (click)="addEnvVar()"
                             ></button>
                         </div>
-                        <button
-                            pButton
-                            type="button"
-                            label="Ajouter une variable"
-                            icon="pi pi-plus"
-                            class="p-button-outlined p-button-secondary"
-                            (click)="addEnvVar()"
-                        ></button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Section: Type de serveur -->
+            <div class="col-12 md:col-6">
+                <div class="field">
+                    <label for="serverType">Type de serveur</label>
+                    <p-dropdown
+                        id="serverType"
+                        [options]="serverTypeOptions"
+                        formControlName="serverType"
+                        placeholder="Sélectionnez un type"
+                        [style]="{'width':'100%'}"
+                    ></p-dropdown>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <div class="field-checkbox mt-4">
+                    <p-checkbox
+                        formControlName="isPermanent"
+                        [binary]="true"
+                        inputId="isPermanent"
+                        (onChange)="validateMinimalInstanceCount()"
+                    ></p-checkbox>
+                    <label for="isPermanent" class="ml-2">Serveur permanent</label>
+                    <small class="block mt-1">Les serveurs permanents ont au moins une instance active</small>
                 </div>
             </div>
         </div>

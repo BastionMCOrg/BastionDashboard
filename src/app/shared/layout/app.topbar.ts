@@ -31,7 +31,7 @@ interface NotificationsBars {
             <img class="horizontal-logo" src="assets/images/crafting-table.png" alt="bastionmc-icon" />
             <span class="topbar-separator"></span>
             <div app-breadcrumb></div>
-            <img class="mobile-logo" src="/layout/images/logo-{{ isDarkTheme() ? 'white' : 'dark' }}.svg" alt="diamond-layout" />
+            <img class="mobile-logo" src="/assets/images/crafting-table.png" alt="bastionmc-icon" />
         </div>
 
         <div class="topbar-right">

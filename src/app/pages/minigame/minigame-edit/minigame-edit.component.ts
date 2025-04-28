@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -12,7 +12,7 @@ import { DividerModule } from 'primeng/divider';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { TextareaModule } from 'primeng/textarea';
-import {Select} from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
 
 enum ServerType {
     MINIGAME = 'MINIGAME',
@@ -39,9 +39,10 @@ enum ServerType {
         MessagesModule,
         MessageModule,
         TextareaModule,
+        CheckboxModule, // Correction: import CheckboxModule au lieu de Checkbox
     ]
 })
-export class MinigameEditComponent implements OnInit {
+export class MinigameEditComponent implements OnInit, OnChanges {
     @Input() visible: boolean = false;
     @Input() minigame: any;
     @Output() visibleChange = new EventEmitter<boolean>();
@@ -58,12 +59,77 @@ export class MinigameEditComponent implements OnInit {
     constructor(private fb: FormBuilder) {}
 
     ngOnInit(): void {
-        this.initForm();
+        // Création initiale du formulaire vide
+        this.createForm();
     }
 
-    initForm(): void {
+    ngOnChanges(changes: SimpleChanges): void {
+        // Si le minigame change, réinitialiser le formulaire
+        if (changes['minigame'] && this.minigame) {
+            console.log('Minigame reçu dans ngOnChanges:', this.minigame);
+            // Si le formulaire existe déjà, le réinitialiser
+            if (this.minigameForm) {
+                this.resetForm();
+            } else {
+                // Sinon, créer le formulaire
+                this.createForm();
+            }
+        }
+
+        // Si la visibilité change et que le dialogue devient visible
+        if (changes['visible'] && this.visible && this.minigame) {
+            console.log('Dialogue ouvert avec minigame:', this.minigame);
+            // Actualiser le formulaire quand le dialogue devient visible
+            this.resetForm();
+        }
+    }
+
+    // Création initiale du formulaire
+    createForm(): void {
+        this.minigameForm = this.fb.group({
+            // Informations de base
+            displayName: ['', Validators.required],
+            name: [{value: '', disabled: true}],
+            enabled: [true],
+            description: [''],
+            developerNames: this.fb.array([]),
+
+            // Configuration du jeu
+            gameSettings: this.fb.group({
+                minimalInstanceCount: [0, [Validators.min(0)]],
+                maxPlayers: [16, [Validators.required, Validators.min(1)]],
+                minPlayers: [2, [Validators.required, Validators.min(1)]]
+            }),
+
+            // Configuration technique
+            serverSettings: this.fb.group({
+                memory: ['2G', [Validators.required, Validators.pattern(/^\d+[GM]$/)]],
+                cpu: ['1', [Validators.required, Validators.min(1)]]
+            }),
+
+            // Configuration Docker
+            dockerSettings: this.fb.group({
+                env: this.fb.array([])
+            }),
+
+            // Type de serveur et configuration permanente
+            serverType: [ServerType.MINIGAME, Validators.required],
+            isPermanent: [false]
+        });
+
+        // Setup des écouteurs de changement de valeur
+        this.setupValueChanges();
+    }
+
+    // Réinitialisation du formulaire avec les valeurs du minigame
+    resetForm(): void {
+        if (!this.minigame) return;
+
+        console.log('Réinitialisation du formulaire avec:', this.minigame);
+
+        // Récupérer les valeurs existantes du mini-jeu
         const initialName = this.minigame?.name || '';
-        const initialDisplayName = this.minigame?.displayName || '';
+        const initialKey = this.minigame?.key || '';
 
         // Déterminer le type de serveur initial
         let initialServerType = ServerType.MINIGAME;
@@ -72,47 +138,48 @@ export class MinigameEditComponent implements OnInit {
             else if (this.minigame.serverType.isProxy) initialServerType = ServerType.PROXY;
         }
 
-        this.minigameForm = this.fb.group({
-            // Informations de base
-            displayName: [initialDisplayName, Validators.required],
-            name: [{value: initialName, disabled: true}],
-            enabled: [this.minigame?.enabled ?? true],
-            description: [this.minigame?.description || ''],
-            developerNames: this.fb.array([]),
+        // Mettre à jour les valeurs du formulaire
+        const formControls = this.minigameForm.controls;
 
-            // Configuration du jeu
-            gameSettings: this.fb.group({
-                minimalInstanceCount: [this.minigame?.gameSettings?.minimalInstanceCount || 0, [Validators.min(0)]],
-                maxPlayers: [this.minigame?.gameSettings?.maxPlayers || 16, [Validators.required, Validators.min(1)]],
-                minPlayers: [this.minigame?.gameSettings?.minPlayers || 2, [Validators.required, Validators.min(1)]]
-            }),
+        // Informations de base
+        formControls['displayName'].setValue(initialName);
+        formControls['name'].setValue(initialKey);
+        formControls['enabled'].setValue(this.minigame?.enabled ?? true);
+        formControls['description'].setValue(this.minigame?.description || '');
 
-            // Configuration technique
-            serverSettings: this.fb.group({
-                memory: [this.minigame?.serverSettings?.memory || '2G', [Validators.required, Validators.pattern(/^\d+[GM]$/)]],
-                cpu: [this.minigame?.serverSettings?.cpu || '1', [Validators.required, Validators.min(1)]]
-            }),
-
-            // Configuration Docker
-            dockerSettings: this.fb.group({
-                env: this.fb.array([])
-            }),
-
-            // Type de serveur (en tant qu'option unique)
-            serverType: [initialServerType, Validators.required],
-            isPermanent: [this.minigame?.serverType?.isPermanent || false]
-        });
-
-        // Initialisation des tableaux
+        // Réinitialiser le tableau des développeurs
         this.initDeveloperNames();
+
+        // Configuration du jeu
+        const gameSettingsGroup = this.minigameForm.get('gameSettings') as FormGroup;
+        gameSettingsGroup.get('minimalInstanceCount')?.setValue(this.minigame?.gameSettings?.minimalInstanceCount || 0);
+        gameSettingsGroup.get('maxPlayers')?.setValue(this.minigame?.gameSettings?.maxPlayers || 16);
+        gameSettingsGroup.get('minPlayers')?.setValue(this.minigame?.gameSettings?.minPlayers || 2);
+
+        // Configuration technique
+        const serverSettingsGroup = this.minigameForm.get('serverSettings') as FormGroup;
+        serverSettingsGroup.get('memory')?.setValue(this.minigame?.serverSettings?.memory || '2G');
+        serverSettingsGroup.get('cpu')?.setValue(this.minigame?.serverSettings?.cpu || '1');
+
+        // Réinitialiser les variables d'environnement
         this.initEnvVars();
 
-        // Mise à jour dynamique du slug basé sur le nom d'affichage
+        // Type de serveur et configuration permanente
+        formControls['serverType'].setValue(initialServerType);
+        formControls['isPermanent'].setValue(this.minigame?.serverType?.isPermanent || false);
+    }
+
+    // Configurer les écouteurs de changements de valeur
+    setupValueChanges(): void {
         this.minigameForm.get('displayName')?.valueChanges.subscribe(displayName => {
             if (displayName) {
                 const slug = this.generateSlug(displayName);
                 this.minigameForm.get('name')?.setValue(slug);
             }
+        });
+
+        this.minigameForm.get('isPermanent')?.valueChanges.subscribe(isPermanent => {
+            this.validateMinimalInstanceCount();
         });
     }
 
@@ -135,19 +202,21 @@ export class MinigameEditComponent implements OnInit {
     }
 
     initDeveloperNames(): void {
+        // Vider le tableau existant
+        while (this.developerNames.length > 0) {
+            this.developerNames.removeAt(0);
+        }
+
         const devNames = this.minigame?.developerNames || [];
         if (devNames.length === 0) {
             this.addDeveloperName();
             return;
         }
 
-        // Optimisation: créer tous les FormControl en une seule fois
-        const controls = devNames.map((name: any) =>
-            new FormControl(name, Validators.required)
-        );
-
-        const formArray = this.fb.array(controls);
-        this.minigameForm.setControl('developerNames', formArray);
+        // Ajouter les nouveaux contrôles
+        devNames.forEach((name: string) => {
+            this.developerNames.push(new FormControl(name, Validators.required));
+        });
     }
 
     addDeveloperName(): void {
@@ -164,16 +233,25 @@ export class MinigameEditComponent implements OnInit {
     }
 
     initEnvVars(): void {
+        // Vider le tableau existant
+        while (this.envVars.length > 0) {
+            this.envVars.removeAt(0);
+        }
+
         const envVars = this.minigame?.dockerSettings?.env || [];
 
-        // Optimisation: créer tous les FormGroup en une seule fois
-        const groups = envVars.map((env: { key: any; value: any; }) => this.fb.group({
-            key: [env.key, Validators.required],
-            value: [env.value, Validators.required]
-        }));
+        // Ajouter les nouveaux groupes
+        envVars.forEach((env: { key: string; value: string; }) => {
+            this.envVars.push(this.fb.group({
+                key: [env.key, Validators.required],
+                value: [env.value, Validators.required]
+            }));
+        });
 
-        const formArray = this.fb.array(groups);
-        this.minigameForm.setControl('dockerSettings.env', formArray);
+        // S'il n'y a pas de variables d'environnement, ajouter une ligne vide
+        if (envVars.length === 0) {
+            this.addEnvVar();
+        }
     }
 
     addEnvVar(): void {
@@ -193,11 +271,17 @@ export class MinigameEditComponent implements OnInit {
 
     onSubmit(): void {
         if (this.minigameForm.invalid) {
-            this.markFormGroupTouched(this.minigameForm);
+            // Utiliser la méthode intégrée d'Angular
+            this.minigameForm.markAllAsTouched();
             return;
         }
 
         const formValue = {...this.minigameForm.getRawValue()};
+
+        // Assurons-nous que les données sont formatées correctement pour l'API
+        // Renommer displayName en name pour la cohérence avec le backend
+        formValue.name = formValue.displayName;
+        delete formValue.displayName;
 
         // Convertir le type de serveur en structure attendue par l'API
         const serverTypeEnum = formValue.serverType;
@@ -211,27 +295,17 @@ export class MinigameEditComponent implements OnInit {
         // Supprimer la propriété isPermanent qui est maintenant intégrée dans serverType
         delete formValue.isPermanent;
 
+        // Conserve l'ID original du minigame si présent
+        if (this.minigame?._id) {
+            formValue._id = this.minigame._id;
+        }
+
+        // Conserver la clé originale
+        formValue.key = this.minigame?.key || formValue.name;
+
+        console.log('Formulaire soumis:', formValue);
         this.saveMinigame.emit(formValue);
         this.visibleChange.emit(false);
-    }
-
-    // Marque tous les champs comme touchés pour déclencher les validations
-    markFormGroupTouched(formGroup: FormGroup): void {
-        Object.values(formGroup.controls).forEach(control => {
-            control.markAsTouched();
-
-            if (control instanceof FormGroup) {
-                this.markFormGroupTouched(control);
-            } else if (control instanceof FormArray) {
-                control.controls.forEach(arrayControl => {
-                    if (arrayControl instanceof FormGroup) {
-                        this.markFormGroupTouched(arrayControl);
-                    } else {
-                        arrayControl.markAsTouched();
-                    }
-                });
-            }
-        });
     }
 
     // Vérification si le minimalInstanceCount doit être >0

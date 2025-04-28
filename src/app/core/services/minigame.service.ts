@@ -170,4 +170,15 @@ export class MinigameService {
             throw error;
         }
     }
+
+    public async rebuildImage(minigameKey: string): Promise<any> {
+        try {
+            const response = await this.apiService.post<any>(`/images/${minigameKey}/build`);
+            console.log(`Image Docker pour ${minigameKey} reconstruite avec succès:`, response);
+            return response;
+        } catch (error) {
+            console.error(`Erreur lors de la reconstruction de l'image Docker pour ${minigameKey}:`, error);
+            throw error;
+        }
+    }
 }

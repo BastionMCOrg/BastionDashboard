@@ -1,20 +1,27 @@
 import {Component, OnInit} from '@angular/core';
-import {StatsComponent} from '../stats/stats.component';
 import {ServerListComponent} from '../../shared/server-list/server-list.component';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {NgIf} from "@angular/common";
 import {MinigameService} from "../../core/services/minigame.service";
+import {MinigameGridComponent} from './minigame-grid/minigame-grid.component';
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 
 @Component({
     selector: 'app-dashboard',
     imports: [
         ServerListComponent,
         ProgressSpinner,
-        NgIf
+        NgIf,
+        MinigameGridComponent,
+        ToastModule,
+        ConfirmDialogModule
     ],
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.scss',
     standalone: true,
+    providers: [MessageService]
 })
 export class DashboardComponent implements OnInit {
     loading = true;

@@ -1,0 +1,83 @@
+<div class="w-full">
+    <div class="flex lg:flex-row flex-col lg:items-center justify-between mb-4 w-full gap-3">
+        <div class="flex-1">
+            <div class="label-medium">Mini-jeux</div>
+            <span class="mt-1 body-xsmall">Sélectionnez un mini-jeu pour filtrer la liste des serveurs</span>
+        </div>
+        <div>
+            <p-button icon="pi pi-refresh" severity="secondary" [loading]="loading" (onClick)="loadMinigames()"></p-button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="flex justify-center items-center py-6">
+        <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"/>
+    </div>
+
+    <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+        <div *ngFor="let minigame of minigames"
+             class="cursor-default transition-all duration-200 hover:shadow-md rounded-lg overflow-hidden">
+            <p-card styleClass="h-full">
+                <ng-template pTemplate="header">
+                    <div class="flex items-center p-3" [style.borderBottom]="'3px solid var(--p-' + (minigame.color || 'blue') + '-500)'">
+                        <p-avatar
+                            [label]="getInitials(minigame.name)"
+                            styleClass="mr-3 !w-10 !h-10 !text-lg font-medium"
+                            [style]="{ backgroundColor: 'var(--p-' + (minigame.color || 'blue') + '-100)', color: 'var(--p-' + (minigame.color || 'blue') + '-950)' }"
+                            shape="circle"
+                        />
+                        <div class="flex-1">
+                            <div class="font-semibold">{{ minigame.name || 'Sans nom' }}</div>
+                            <div class="text-xs text-surface-500">{{ minigame.developerNames.join(', ') || 'Aucun développeur' }}</div>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <div class="p-3 text-sm">
+                    <p class="mb-3 line-clamp-2 h-10">{{ minigame.description || 'Aucune description disponible' }}</p>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between">
+                            <span class="text-surface-600">Serveurs actifs</span>
+                            <span class="font-medium">{{ minigame.stats.activeServers || 0 }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-surface-600">Joueurs</span>
+                            <span class="font-medium">{{ minigame.stats.currentPlayerCount || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-between">
+                        <p-button
+                            icon="pi pi-sync"
+                            severity="secondary"
+                            size="small"
+                            [loading]="rebuildingImage[minigame.key]"
+                            pTooltip="Reconstruire l'image Docker"
+                            tooltipPosition="top"
+                            (onClick)="rebuildImage($event, minigame)"
+                        ></p-button>
+                        <p-button
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            size="small"
+                            pTooltip="Modifier"
+                            tooltipPosition="top"
+                            (onClick)="editMinigame($event, minigame)"
+                        ></p-button>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+    </div>
+</div>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<!-- Dialogue d'édition -->
+<app-minigame-edit
+    [(visible)]="editDialogVisible"
+    [minigame]="minigameToEdit"
+    (saveMinigame)="saveMinigame($event)"
+></app-minigame-edit>

@@ -4,6 +4,12 @@
     </div>
 
     <div *ngIf="!loading">
-        <app-server-list/>
+        <app-minigame-grid></app-minigame-grid>
+    </div>
+
+    <div *ngIf="!loading">
+        <app-server-list></app-server-list>
     </div>
 </section>
+
+<p-toast></p-toast>
