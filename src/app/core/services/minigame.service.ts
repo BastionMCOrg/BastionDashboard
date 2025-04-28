@@ -52,17 +52,77 @@ export class MinigameService {
     }
 
     /**
+     * Crée un nouveau mini-jeu
+     */
+    public async createMinigame(minigame: any): Promise<any> {
+        try {
+            const response = await this.apiService.post<any>('/minigames', minigame);
+            console.log(`Mini-jeu ${minigame.name} créé avec succès:`, response);
+            return response;
+        } catch (error) {
+            console.error(`Erreur lors de la création du mini-jeu:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Met à jour un mini-jeu existant
+     */
+    public async updateMinigame(name: string, minigame: any): Promise<any> {
+        try {
+            const response = await this.apiService.put<any>(`/minigames/${name}`, minigame);
+            console.log(`Mini-jeu ${name} mis à jour avec succès:`, response);
+            return response;
+        } catch (error) {
+            console.error(`Erreur lors de la mise à jour du mini-jeu ${name}:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Supprime un mini-jeu
+     */
+    public async deleteMinigame(name: string): Promise<any> {
+        try {
+            const response = await this.apiService.delete<any>(`/minigames/${name}`);
+            console.log(`Mini-jeu ${name} supprimé avec succès`);
+            return response;
+        } catch (error) {
+            console.error(`Erreur lors de la suppression du mini-jeu ${name}:`, error);
+            throw error;
+        }
+    }
+
+
+    public async cleanupSystem(): Promise<{
+        success: boolean;
+        stoppedContainers?: number;
+        removedImages?: number;
+        message?: string;
+        error?: string;
+    }> {
+        try {
+            const response = await this.apiService.post<any>('/minigames/cleanup');
+            console.log('Nettoyage système effectué avec succès:', response);
+            return {
+                success: true,
+                ...response
+            };
+        } catch (error) {
+            console.error('Erreur lors du nettoyage système:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : String(error)
+            };
+        }
+    }
+
+    /**
      * Récupère toutes les instances avec pagination
-     * Note: Cette méthode suppose qu'un endpoint `/instances` existe sur le serveur
-     * avec support pour la pagination
      */
     public async getAllInstances(params: PaginationParams): Promise<PaginatedResponse<any>> {
         try {
-            // Si l'endpoint n'existe pas encore, on peut commenter cette ligne et décommenter celle en dessous
             const response = await this.apiService.get<PaginatedResponse<any>>('/minigames/instances', params);
-
-            // Si l'endpoint n'existe pas, simuler une pagination avec les instances disponibles
-            // const response = await this.simulatePaginatedInstances(params);
 
             return {
                 ...response,
@@ -71,7 +131,6 @@ export class MinigameService {
         } catch (error) {
             console.error('Erreur lors de la récupération des instances:', error);
 
-            // En cas d'erreur, simuler une réponse vide mais avec la structure correcte
             return {
                 content: [],
                 totalPages: 0,

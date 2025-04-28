@@ -39,18 +39,20 @@ enum ServerType {
         MessagesModule,
         MessageModule,
         TextareaModule,
-        CheckboxModule, // Correction: import CheckboxModule au lieu de Checkbox
+        CheckboxModule
     ]
 })
 export class MinigameEditComponent implements OnInit, OnChanges {
     @Input() visible: boolean = false;
     @Input() minigame: any;
+    @Input() isCreateMode: boolean = false;
     @Output() visibleChange = new EventEmitter<boolean>();
     @Output() saveMinigame = new EventEmitter<any>();
 
-    minigameForm!: FormGroup;
+    public minigameForm!: FormGroup;
+    public formSubmitting: boolean = false;
 
-    serverTypeOptions = [
+    public serverTypeOptions = [
         { label: 'Mini-jeu', value: ServerType.MINIGAME },
         { label: 'Lobby', value: ServerType.LOBBY },
         { label: 'Proxy', value: ServerType.PROXY }
@@ -58,151 +60,104 @@ export class MinigameEditComponent implements OnInit, OnChanges {
 
     constructor(private fb: FormBuilder) {}
 
-    ngOnInit(): void {
-        // Création initiale du formulaire vide
+    public ngOnInit(): void {
         this.createForm();
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        // Si le minigame change, réinitialiser le formulaire
-        if (changes['minigame'] && this.minigame) {
-            console.log('Minigame reçu dans ngOnChanges:', this.minigame);
-            // Si le formulaire existe déjà, le réinitialiser
-            if (this.minigameForm) {
-                this.resetForm();
-            } else {
-                // Sinon, créer le formulaire
+    public ngOnChanges(changes: SimpleChanges): void {
+        if (changes['visible'] && this.visible) {
+            if (this.isCreateMode) {
                 this.createForm();
+            } else if (this.minigame) {
+                this.resetForm();
             }
-        }
-
-        // Si la visibilité change et que le dialogue devient visible
-        if (changes['visible'] && this.visible && this.minigame) {
-            console.log('Dialogue ouvert avec minigame:', this.minigame);
-            // Actualiser le formulaire quand le dialogue devient visible
-            this.resetForm();
         }
     }
 
-    // Création initiale du formulaire
-    createForm(): void {
+    private createForm(): void {
         this.minigameForm = this.fb.group({
-            // Informations de base
             displayName: ['', Validators.required],
             name: [{value: '', disabled: true}],
             enabled: [true],
             description: [''],
-            developerNames: this.fb.array([]),
-
-            // Configuration du jeu
+            developerNames: this.fb.array([this.fb.control('', Validators.required)]),
             gameSettings: this.fb.group({
-                minimalInstanceCount: [0, [Validators.min(0)]],
-                maxPlayers: [16, [Validators.required, Validators.min(1)]],
-                minPlayers: [2, [Validators.required, Validators.min(1)]]
+                minimalInstanceCount: [0],
+                maxPlayers: [16],
+                minPlayers: [2]
             }),
-
-            // Configuration technique
             serverSettings: this.fb.group({
-                memory: ['2G', [Validators.required, Validators.pattern(/^\d+[GM]$/)]],
-                cpu: ['1', [Validators.required, Validators.min(1)]]
+                memory: ['2G'],
+                cpu: ['1']
             }),
-
-            // Configuration Docker
             dockerSettings: this.fb.group({
                 env: this.fb.array([])
             }),
-
-            // Type de serveur et configuration permanente
-            serverType: [ServerType.MINIGAME, Validators.required],
+            serverType: [ServerType.MINIGAME],
             isPermanent: [false]
         });
 
-        // Setup des écouteurs de changement de valeur
-        this.setupValueChanges();
-    }
-
-    // Réinitialisation du formulaire avec les valeurs du minigame
-    resetForm(): void {
-        if (!this.minigame) return;
-
-        console.log('Réinitialisation du formulaire avec:', this.minigame);
-
-        // Récupérer les valeurs existantes du mini-jeu
-        const initialName = this.minigame?.name || '';
-        const initialKey = this.minigame?.key || '';
-
-        // Déterminer le type de serveur initial
-        let initialServerType = ServerType.MINIGAME;
-        if (this.minigame?.serverType) {
-            if (this.minigame.serverType.isLobby) initialServerType = ServerType.LOBBY;
-            else if (this.minigame.serverType.isProxy) initialServerType = ServerType.PROXY;
-        }
-
-        // Mettre à jour les valeurs du formulaire
-        const formControls = this.minigameForm.controls;
-
-        // Informations de base
-        formControls['displayName'].setValue(initialName);
-        formControls['name'].setValue(initialKey);
-        formControls['enabled'].setValue(this.minigame?.enabled ?? true);
-        formControls['description'].setValue(this.minigame?.description || '');
-
-        // Réinitialiser le tableau des développeurs
-        this.initDeveloperNames();
-
-        // Configuration du jeu
-        const gameSettingsGroup = this.minigameForm.get('gameSettings') as FormGroup;
-        gameSettingsGroup.get('minimalInstanceCount')?.setValue(this.minigame?.gameSettings?.minimalInstanceCount || 0);
-        gameSettingsGroup.get('maxPlayers')?.setValue(this.minigame?.gameSettings?.maxPlayers || 16);
-        gameSettingsGroup.get('minPlayers')?.setValue(this.minigame?.gameSettings?.minPlayers || 2);
-
-        // Configuration technique
-        const serverSettingsGroup = this.minigameForm.get('serverSettings') as FormGroup;
-        serverSettingsGroup.get('memory')?.setValue(this.minigame?.serverSettings?.memory || '2G');
-        serverSettingsGroup.get('cpu')?.setValue(this.minigame?.serverSettings?.cpu || '1');
-
-        // Réinitialiser les variables d'environnement
-        this.initEnvVars();
-
-        // Type de serveur et configuration permanente
-        formControls['serverType'].setValue(initialServerType);
-        formControls['isPermanent'].setValue(this.minigame?.serverType?.isPermanent || false);
-    }
-
-    // Configurer les écouteurs de changements de valeur
-    setupValueChanges(): void {
-        this.minigameForm.get('displayName')?.valueChanges.subscribe(displayName => {
-            if (displayName) {
-                const slug = this.generateSlug(displayName);
-                this.minigameForm.get('name')?.setValue(slug);
+        // Configuration de l'écouteur pour générer le nom à partir du titre
+        this.minigameForm.get('displayName')?.valueChanges.subscribe(value => {
+            if (value) {
+                this.minigameForm.get('name')?.setValue(this.generateSlug(value));
             }
         });
-
-        this.minigameForm.get('isPermanent')?.valueChanges.subscribe(isPermanent => {
-            this.validateMinimalInstanceCount();
-        });
     }
 
-    // Génère un slug à partir du nom d'affichage
-    generateSlug(text: string): string {
+    private resetForm(): void {
+        if (!this.minigame) return;
+
+        // Déterminer le type de serveur
+        let serverType = ServerType.MINIGAME;
+        if (this.minigame?.serverType) {
+            if (this.minigame.serverType.isLobby) serverType = ServerType.LOBBY;
+            else if (this.minigame.serverType.isProxy) serverType = ServerType.PROXY;
+        }
+
+        // Réinitialiser le formulaire
+        this.minigameForm.patchValue({
+            displayName: this.minigame.name || '',
+            name: this.minigame.key || '',
+            enabled: this.minigame.enabled ?? true,
+            description: this.minigame.description || '',
+            gameSettings: {
+                minimalInstanceCount: this.minigame.gameSettings?.minimalInstanceCount || 0,
+                maxPlayers: this.minigame.gameSettings?.maxPlayers || 16,
+                minPlayers: this.minigame.gameSettings?.minPlayers || 2
+            },
+            serverSettings: {
+                memory: this.minigame.serverSettings?.memory || '2G',
+                cpu: this.minigame.serverSettings?.cpu || '1'
+            },
+            serverType: serverType,
+            isPermanent: this.minigame.serverType?.isPermanent || false
+        });
+
+        // Réinitialiser les tableaux
+        this.initDeveloperNames();
+        this.initEnvVars();
+    }
+
+    private generateSlug(text: string): string {
         return text
             .toString()
             .toLowerCase()
-            .normalize('NFD') // Normaliser les accents
-            .replace(/[\u0300-\u036f]/g, '') // Supprimer les diacritiques
-            .replace(/[^a-z0-9\s-]/g, '') // Conserver uniquement les lettres, chiffres, tirets et espaces
-            .replace(/\s+/g, '-') // Remplacer les espaces par des tirets
-            .replace(/-+/g, '-') // Éviter les tirets multiples
-            .trim(); // Supprimer les espaces au début et à la fin
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim();
     }
 
     // Gestion des développeurs
-    get developerNames(): FormArray {
+    public get developerNames(): FormArray {
         return this.minigameForm.get('developerNames') as FormArray;
     }
 
-    initDeveloperNames(): void {
-        // Vider le tableau existant
+    private initDeveloperNames(): void {
+        // Vider le tableau
         while (this.developerNames.length > 0) {
             this.developerNames.removeAt(0);
         }
@@ -213,77 +168,69 @@ export class MinigameEditComponent implements OnInit, OnChanges {
             return;
         }
 
-        // Ajouter les nouveaux contrôles
+        // Ajouter les développeurs
         devNames.forEach((name: string) => {
-            this.developerNames.push(new FormControl(name, Validators.required));
+            this.developerNames.push(new FormControl(name));
         });
     }
 
-    addDeveloperName(): void {
-        this.developerNames.push(new FormControl('', Validators.required));
+    public addDeveloperName(): void {
+        this.developerNames.push(new FormControl(''));
     }
 
-    removeDeveloperName(index: number): void {
-        this.developerNames.removeAt(index);
+    public removeDeveloperName(index: number): void {
+        if (this.developerNames.length > 1) {
+            this.developerNames.removeAt(index);
+        }
     }
 
     // Gestion des variables d'environnement
-    get envVars(): FormArray {
+    public get envVars(): FormArray {
         return this.minigameForm.get('dockerSettings.env') as FormArray;
     }
 
-    initEnvVars(): void {
-        // Vider le tableau existant
+    private initEnvVars(): void {
+        // Vider le tableau
         while (this.envVars.length > 0) {
             this.envVars.removeAt(0);
         }
 
         const envVars = this.minigame?.dockerSettings?.env || [];
 
-        // Ajouter les nouveaux groupes
+        // Ajouter les variables
         envVars.forEach((env: { key: string; value: string; }) => {
             this.envVars.push(this.fb.group({
-                key: [env.key, Validators.required],
-                value: [env.value, Validators.required]
+                key: [env.key],
+                value: [env.value]
             }));
         });
-
-        // S'il n'y a pas de variables d'environnement, ajouter une ligne vide
-        if (envVars.length === 0) {
-            this.addEnvVar();
-        }
     }
 
-    addEnvVar(): void {
+    public addEnvVar(): void {
         this.envVars.push(this.fb.group({
-            key: ['', Validators.required],
-            value: ['', Validators.required]
+            key: [''],
+            value: ['']
         }));
     }
 
-    removeEnvVar(index: number): void {
+    public removeEnvVar(index: number): void {
         this.envVars.removeAt(index);
     }
 
-    onHide(): void {
+    public onHide(): void {
         this.visibleChange.emit(false);
     }
 
-    onSubmit(): void {
-        if (this.minigameForm.invalid) {
-            // Utiliser la méthode intégrée d'Angular
-            this.minigameForm.markAllAsTouched();
-            return;
-        }
-
+    public onSubmit(): void {
+        // Récupérer les valeurs du formulaire
         const formValue = {...this.minigameForm.getRawValue()};
 
-        // Assurons-nous que les données sont formatées correctement pour l'API
-        // Renommer displayName en name pour la cohérence avec le backend
+        // Formatage pour l'API
+        formValue.key = formValue.name;
         formValue.name = formValue.displayName;
         delete formValue.displayName;
 
-        // Convertir le type de serveur en structure attendue par l'API
+        // Type de serveur
         const serverTypeEnum = formValue.serverType;
         formValue.serverType = {
             isMinigame: serverTypeEnum === ServerType.MINIGAME,
@@ -291,30 +238,20 @@ export class MinigameEditComponent implements OnInit, OnChanges {
             isProxy: serverTypeEnum === ServerType.PROXY,
             isPermanent: formValue.isPermanent
         };
-
-        // Supprimer la propriété isPermanent qui est maintenant intégrée dans serverType
         delete formValue.isPermanent;
 
-        // Conserve l'ID original du minigame si présent
-        if (this.minigame?._id) {
+        // ID pour l'édition
+        if (!this.isCreateMode && this.minigame?._id) {
             formValue._id = this.minigame._id;
         }
 
-        // Conserver la clé originale
-        formValue.key = this.minigame?.key || formValue.name;
+        // Émission de l'événement
+        this.saveMinigame.emit({
+            data: formValue,
+            isCreateMode: this.isCreateMode
+        });
 
-        console.log('Formulaire soumis:', formValue);
-        this.saveMinigame.emit(formValue);
+        // Fermeture du dialogue
         this.visibleChange.emit(false);
-    }
-
-    // Vérification si le minimalInstanceCount doit être >0
-    validateMinimalInstanceCount(): void {
-        const isPermanent = this.minigameForm.get('isPermanent')?.value;
-        const minimalInstanceCount = this.minigameForm.get('gameSettings.minimalInstanceCount');
-
-        if (isPermanent && minimalInstanceCount && minimalInstanceCount.value < 1) {
-            minimalInstanceCount.setValue(1);
-        }
     }
 }

@@ -11,7 +11,7 @@ import { Minigame } from '../../../core/models/minigame.model';
 import { getInitials } from '../../../core/utils/dashboard.utils';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
-import {MinigameEditComponent} from '../minigame-edit/minigame-edit.component';
+import { MinigameEditComponent } from '../minigame-edit/minigame-edit.component';
 
 @Component({
     selector: 'app-minigame-grid',
@@ -32,16 +32,19 @@ import {MinigameEditComponent} from '../minigame-edit/minigame-edit.component';
     providers: [ConfirmationService]
 })
 export class MinigameGridComponent implements OnInit {
-    minigames: Minigame[] = [];
-    loading = true;
-    rebuildingImage: { [key: string]: boolean } = {};
+    public minigames: Minigame[] = [];
+    public loading = true;
+    public rebuildingImage: { [key: string]: boolean } = {};
 
     // Variables pour le dialogue d'édition
-    editDialogVisible = false;
-    minigameToEdit: Minigame | null = null;
+    public editDialogVisible = false;
+    public minigameToEdit: Minigame | null = null;
+    public isCreateMode = false;
+
+    public cleaningSystem: boolean = false;
 
     // Couleurs disponibles pour les barres
-    availableColors = ['blue', 'green', 'purple', 'orange', 'indigo', 'teal', 'red', 'pink', 'amber', 'cyan'];
+    private availableColors = ['blue', 'green', 'purple', 'orange', 'indigo', 'teal', 'red', 'pink', 'amber', 'cyan'];
 
     constructor(
         private minigameService: MinigameService,
@@ -49,11 +52,11 @@ export class MinigameGridComponent implements OnInit {
         private messageService: MessageService
     ) {}
 
-    async ngOnInit() {
+    public async ngOnInit() {
         await this.loadMinigames();
     }
 
-    async loadMinigames() {
+    public async loadMinigames() {
         this.loading = true;
         try {
             const minigames = await this.minigameService.getMinigames();
@@ -72,8 +75,6 @@ export class MinigameGridComponent implements OnInit {
                 },
                 color: minigame.color || this.getRandomColor()
             }));
-
-            console.log('Minigames chargés avec stats par défaut:', this.minigames);
         } catch (error) {
             console.error('Erreur lors du chargement des mini-jeux:', error);
             this.minigames = [];
@@ -82,14 +83,12 @@ export class MinigameGridComponent implements OnInit {
         }
     }
 
-    getRandomColor(): string {
+    private getRandomColor(): string {
         return this.availableColors[Math.floor(Math.random() * this.availableColors.length)];
     }
 
-    rebuildImage(event: Event, minigame: Minigame) {
-        event.stopPropagation(); // Éviter la propagation de l'événement
-
-        // Exécution directe sans confirmation
+    public rebuildImage(event: Event, minigame: Minigame) {
+        event.stopPropagation();
         this.rebuildingImage[minigame.key] = true;
 
         this.minigameService.rebuildImage(minigame.key)
@@ -112,35 +111,122 @@ export class MinigameGridComponent implements OnInit {
             });
     }
 
-    editMinigame(event: Event, minigame: Minigame) {
-        event.stopPropagation(); // Éviter la propagation de l'événement
+    public createMinigame() {
+        this.isCreateMode = true;
+        this.minigameToEdit = null;
+        this.editDialogVisible = true;
+    }
 
+    public editMinigame(event: Event, minigame: Minigame) {
+        event.stopPropagation();
+        this.isCreateMode = false;
         this.minigameToEdit = minigame;
         this.editDialogVisible = true;
     }
 
-    saveMinigame(updatedMinigame: any) {
-        // Mise à jour des données locales
-        if (this.minigameToEdit) {
-            const index = this.minigames.findIndex(m => m.key === this.minigameToEdit?.key);
-            if (index !== -1) {
-                this.minigames[index] = {
-                    ...this.minigames[index],
-                    ...updatedMinigame,
-                    // Préserver les stats qui ne font pas partie du formulaire
-                    stats: this.minigames[index].stats
-                };
+    public async saveMinigame(data: { data: any, isCreateMode: boolean }) {
+        try {
+            if (data.isCreateMode) {
+                await this.minigameService.createMinigame(data.data);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: `Le mini-jeu "${data.data.name}" a été créé avec succès`
+                });
+            } else {
+                await this.minigameService.updateMinigame(data.data.key, data.data);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: `Le mini-jeu "${data.data.name}" a été mis à jour avec succès`
+                });
             }
-        }
 
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Mini-jeu mis à jour avec succès',
-            life: 3000
+            await this.loadMinigames();
+
+        } catch (error) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: `Erreur lors de l'enregistrement du mini-jeu: ${error instanceof Error ? error.message : String(error)}`
+            });
+        }
+    }
+
+    public deleteMinigame(event: Event, minigame: Minigame) {
+        event.stopPropagation();
+
+        this.confirmationService.confirm({
+            message: `Êtes-vous sûr de vouloir supprimer le mini-jeu "${minigame.name}" ?`,
+            header: 'Confirmation de suppression',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Oui, supprimer',
+            rejectLabel: 'Non',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: async () => {
+                try {
+                    await this.minigameService.deleteMinigame(minigame.key);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Suppression réussie',
+                        detail: `Le mini-jeu "${minigame.name}" a été supprimé avec succès`
+                    });
+                    await this.loadMinigames();
+                } catch (error) {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: `Erreur lors de la suppression du mini-jeu: ${error instanceof Error ? error.message : String(error)}`
+                    });
+                }
+            }
         });
     }
 
+    public confirmCleanupSystem(): void {
+        this.confirmationService.confirm({
+            message: 'Cette action va arrêter tous les serveurs en cours et nettoyer toutes les ressources Docker. Voulez-vous continuer ?',
+            header: 'Confirmation de nettoyage',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Oui, nettoyer',
+            rejectLabel: 'Annuler',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this.cleanupSystem();
+            }
+        });
+    }
+
+    private async cleanupSystem(): Promise<void> {
+        this.cleaningSystem = true;
+        try {
+            const result = await this.minigameService.cleanupSystem();
+
+            if (result.success) {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Nettoyage réussi',
+                    detail: result.message || `${result.stoppedContainers} serveurs arrêtés, ${result.removedImages} images supprimées`
+                });
+                await this.loadMinigames();
+            } else {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: result.error || 'Une erreur est survenue lors du nettoyage'
+                });
+            }
+        } catch (error) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: `Erreur lors du nettoyage: ${error instanceof Error ? error.message : String(error)}`
+            });
+        } finally {
+            this.cleaningSystem = false;
+        }
+    }
+
     // Helper pour obtenir les initiales pour l'avatar
-    getInitials = getInitials;
+    public getInitials = getInitials;
 }

@@ -5,7 +5,9 @@
             <span class="mt-1 body-xsmall">Sélectionnez un mini-jeu pour filtrer la liste des serveurs</span>
         </div>
         <div>
-            <p-button icon="pi pi-refresh" severity="secondary" [loading]="loading" (onClick)="loadMinigames()"></p-button>
+            <p-button icon="pi pi-refresh" severity="secondary" [loading]="loading" (onClick)="loadMinigames()" class="mr-2"></p-button>
+            <p-button icon="pi pi-plus" label="Créer" severity="success" (onClick)="createMinigame()" class="mr-2"></p-button>
+            <p-button icon="pi pi-trash" label="Nettoyer" severity="danger" [loading]="cleaningSystem" (onClick)="confirmCleanupSystem()"></p-button>
         </div>
     </div>
 
@@ -15,24 +17,24 @@
 
     <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
         <div *ngFor="let minigame of minigames"
-             class="cursor-default transition-all duration-200 hover:shadow-md rounded-lg overflow-hidden">
-            <p-card styleClass="h-full">
-                <ng-template pTemplate="header">
-                    <div class="flex items-center p-3" [style.borderBottom]="'3px solid var(--p-' + (minigame.color || 'blue') + '-500)'">
-                        <p-avatar
-                            [label]="getInitials(minigame.name)"
-                            styleClass="mr-3 !w-10 !h-10 !text-lg font-medium"
-                            [style]="{ backgroundColor: 'var(--p-' + (minigame.color || 'blue') + '-100)', color: 'var(--p-' + (minigame.color || 'blue') + '-950)' }"
-                            shape="circle"
-                        />
-                        <div class="flex-1">
-                            <div class="font-semibold">{{ minigame.name || 'Sans nom' }}</div>
-                            <div class="text-xs text-surface-500">{{ minigame.developerNames.join(', ') || 'Aucun développeur' }}</div>
-                        </div>
+             class="cursor-default overflow-hidden">
+            <div class="card h-full flex flex-col !p-0">
+                <!-- Header -->
+                <div class="flex items-center p-3" [style.borderBottom]="'3px solid var(--p-' + (minigame.color || 'blue') + '-500)'">
+                    <p-avatar
+                        [label]="getInitials(minigame.name)"
+                        styleClass="mr-3 !w-10 !h-10 !text-lg font-medium"
+                        [style]="{ backgroundColor: 'var(--p-' + (minigame.color || 'blue') + '-100)', color: 'var(--p-' + (minigame.color || 'blue') + '-950)' }"
+                        shape="circle"
+                    />
+                    <div class="flex-1">
+                        <div class="font-semibold">{{ minigame.name || 'Sans nom' }}</div>
+                        <div class="text-xs text-surface-500">{{ minigame.developerNames.join(', ') || 'Aucun développeur' }}</div>
                     </div>
-                </ng-template>
+                </div>
 
-                <div class="p-3 text-sm">
+                <!-- Content -->
+                <div class="p-3 text-sm flex-1">
                     <p class="mb-3 line-clamp-2 h-10">{{ minigame.description || 'Aucune description disponible' }}</p>
 
                     <div class="flex flex-col gap-2">
@@ -47,7 +49,8 @@
                     </div>
                 </div>
 
-                <ng-template pTemplate="footer">
+                <!-- Footer -->
+                <div class="border-t border-surface-200 dark:border-surface-700 p-3">
                     <div class="flex justify-between">
                         <p-button
                             icon="pi pi-sync"
@@ -58,17 +61,27 @@
                             tooltipPosition="top"
                             (onClick)="rebuildImage($event, minigame)"
                         ></p-button>
-                        <p-button
-                            icon="pi pi-pencil"
-                            severity="secondary"
-                            size="small"
-                            pTooltip="Modifier"
-                            tooltipPosition="top"
-                            (onClick)="editMinigame($event, minigame)"
-                        ></p-button>
+                        <div class="flex gap-2">
+                            <p-button
+                                icon="pi pi-pencil"
+                                severity="secondary"
+                                size="small"
+                                pTooltip="Modifier"
+                                tooltipPosition="top"
+                                (onClick)="editMinigame($event, minigame)"
+                            ></p-button>
+                            <p-button
+                                icon="pi pi-trash"
+                                severity="danger"
+                                size="small"
+                                pTooltip="Supprimer"
+                                tooltipPosition="top"
+                                (onClick)="deleteMinigame($event, minigame)"
+                            ></p-button>
+                        </div>
                     </div>
-                </ng-template>
-            </p-card>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -79,5 +92,6 @@
 <app-minigame-edit
     [(visible)]="editDialogVisible"
     [minigame]="minigameToEdit"
+    [isCreateMode]="isCreateMode"
     (saveMinigame)="saveMinigame($event)"
 ></app-minigame-edit>

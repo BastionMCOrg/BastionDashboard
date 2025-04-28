@@ -5,10 +5,10 @@
     [draggable]="false"
     [resizable]="false"
     (onHide)="onHide()"
-    header="Modifier le mini-jeu"
+    [header]="isCreateMode ? 'Créer un mini-jeu' : 'Modifier le mini-jeu'"
     [closeOnEscape]="true"
 >
-    <form [formGroup]="minigameForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <form [formGroup]="minigameForm" class="p-fluid">
         <div class="grid">
             <!-- Section: Informations générales -->
 
@@ -16,10 +16,6 @@
                 <div class="field">
                     <label for="displayName">Nom d'affichage*</label>
                     <input id="displayName" type="text" pInputText formControlName="displayName"/>
-                    <small *ngIf="minigameForm.get('displayName')?.invalid && minigameForm.get('displayName')?.touched"
-                           class="p-error">
-                        Le nom d'affichage est requis.
-                    </small>
                 </div>
             </div>
 
@@ -80,7 +76,6 @@
             </div>
 
             <!-- Section: Configuration du jeu -->
-            <!-- CORRECTION: Utilisation correcte de formGroupName -->
             <div class="col-12">
                 <div formGroupName="gameSettings">
                     <div class="grid">
@@ -141,11 +136,6 @@
                                     formControlName="memory"
                                     pTooltip="Format: 2G ou 512M"
                                 />
-                                <small
-                                    *ngIf="minigameForm.get('serverSettings.memory')?.invalid && minigameForm.get('serverSettings.memory')?.touched"
-                                    class="p-error">
-                                    Format requis: "2G" ou "512M"
-                                </small>
                             </div>
                         </div>
 
@@ -217,7 +207,6 @@
                         formControlName="isPermanent"
                         [binary]="true"
                         inputId="isPermanent"
-                        (onChange)="validateMinimalInstanceCount()"
                     ></p-checkbox>
                     <label for="isPermanent" class="ml-2">Serveur permanent</label>
                     <small class="block mt-1">Les serveurs permanents ont au moins une instance active</small>
@@ -235,9 +224,8 @@
         ></p-button>
         <p-button
             icon="pi pi-check"
-            label="Enregistrer"
+            [label]="isCreateMode ? 'Créer' : 'Enregistrer'"
             (onClick)="onSubmit()"
-            [disabled]="minigameForm.invalid"
         ></p-button>
     </ng-template>
 </p-dialog>

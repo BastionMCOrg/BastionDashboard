@@ -29,41 +29,5 @@ export class AppMenu {
       ]
     },
     {separator: true},
-    {
-      label: 'Apps',
-      icon: 'pi pi-th-large',
-      items: [
-        {
-          label: 'The Tower',
-          icon: 'pi pi-fw pi-comments',
-          routerLink: ['/minigames/TW01']
-        },
-        {
-          label: 'Dodgeball',
-          icon: 'pi pi-fw pi-folder',
-          routerLink: ['/minigames/DB03']
-        },
-        {
-          label: 'CrazyRace',
-          icon: 'pi pi-fw pi-envelope',
-          routerLink: ['/apps/mail']
-        },
-        {
-          label: 'Arrows',
-          icon: 'pi pi-fw pi-check-square',
-          routerLink: ['/apps/tasklist']
-        },
-        {
-          label: 'Parkour Battle',
-          icon: 'pi pi-fw pi-check-square',
-          routerLink: ['/apps/tasklist']
-        },
-        {
-          label: 'Poule Renard Vipère',
-          icon: 'pi pi-fw pi-check-square',
-          routerLink: ['/apps/tasklist']
-        }
-      ]
-    },
   ]
 }
