@@ -30,6 +30,7 @@
                 align-items: center;
                 gap: 1rem;
                 padding: 1rem 0.5rem;
+
                 .logo {
                     width: 100%;
                     border: none;
@@ -53,11 +54,11 @@
                     border-width: 2px;
                     background-color: transparent;
                     outline: none;
-                    transition:
-                        background-color var(--transition-duration),
-                        transform 0.3s;
+                    transition: background-color var(--transition-duration),
+                    transform 0.3s;
                 }
             }
+
             .layout-menu-container {
                 overflow: hidden;
             }
@@ -70,6 +71,7 @@
                         font-weight: 500;
                         padding: 0.5rem 0 0.5rem 0;
                         opacity: 0;
+
                         > span {
                             margin-right: auto;
                         }
@@ -112,6 +114,7 @@
         &.layout-sidebar-active {
             .layout-sidebar {
                 margin-left: 0;
+
                 .layout-menu-container {
                     overflow: auto;
                 }
@@ -119,6 +122,7 @@
                 .sidebar-header {
                     justify-content: space-between;
                     padding: 1rem;
+
                     .logo {
                         width: 100%;
                         border: none;
@@ -139,6 +143,7 @@
                     .layout-root-menuitem {
                         > .layout-menuitem-root-text {
                             opacity: 1;
+
                             > .layout-menuitem-root-icon {
                                 display: none;
                             }
@@ -148,10 +153,12 @@
                     ul {
                         a {
                             padding: 0.45rem 0.75rem;
+
                             .layout-submenu-toggler {
                                 display: block;
                             }
                         }
+
                         ul {
                             overflow: hidden;
                             border-radius: var(--border-radius);

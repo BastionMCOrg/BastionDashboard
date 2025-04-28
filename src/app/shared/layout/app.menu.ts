@@ -4,10 +4,10 @@ import {RouterModule} from '@angular/router';
 import {AppMenuitem} from './app.menuitem';
 
 @Component({
-  selector: '[app-menu]',
-  standalone: true,
-  imports: [CommonModule, AppMenuitem, RouterModule],
-  template: `
+    selector: '[app-menu]',
+    standalone: true,
+    imports: [CommonModule, AppMenuitem, RouterModule],
+    template: `
     <ul class="layout-menu">
       <ng-container *ngFor="let item of model; let i = index">
         <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
@@ -16,18 +16,18 @@ import {AppMenuitem} from './app.menuitem';
     </ul> `
 })
 export class AppMenu {
-  model: any[] = [
-    {
-      label: 'Dashboards',
-      icon: 'pi pi-home',
-      items: [
+    model: any[] = [
         {
-          label: 'Accueil',
-          icon: 'pi pi-fw pi-warehouse',
-          routerLink: ['/']
-        }
-      ]
-    },
-    {separator: true},
-  ]
+            label: 'Dashboards',
+            icon: 'pi pi-home',
+            items: [
+                {
+                    label: 'Accueil',
+                    icon: 'pi pi-fw pi-warehouse',
+                    routerLink: ['/']
+                }
+            ]
+        },
+        {separator: true},
+    ]
 }

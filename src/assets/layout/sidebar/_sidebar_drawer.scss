@@ -41,9 +41,11 @@
                     justify-content: flex-end;
                     margin: 0;
                     transition: all 0.15s;
+
                     .logo-image {
                         margin-right: 0.75rem;
                     }
+
                     .app-name {
                         opacity: 0;
                         width: 0;
@@ -61,11 +63,11 @@
                     border-width: 2px;
                     background-color: transparent;
                     outline: none;
-                    transition:
-                        background-color var(--transition-duration),
-                        transform 0.3s;
+                    transition: background-color var(--transition-duration),
+                    transform 0.3s;
                 }
             }
+
             .layout-menu-container {
                 overflow: hidden;
             }
@@ -129,6 +131,7 @@
                 .sidebar-header {
                     justify-content: space-between;
                     padding: 1rem;
+
                     .logo {
                         width: 100%;
                         border: none;
@@ -157,6 +160,7 @@
                             padding: 0.5rem 0 0.5rem 0;
                             opacity: 1;
                             transition: all 0.3s;
+
                             > .layout-menuitem-root-icon {
                                 display: none;
                             }
@@ -166,14 +170,17 @@
                     ul {
                         a {
                             padding: 0.45rem 0.75rem;
+
                             .layout-submenu-toggler {
                                 display: block;
                             }
+
                             span {
                                 opacity: 1;
                                 transition: all 0.3s;
                             }
                         }
+
                         ul {
                             overflow: hidden;
                             border-radius: var(--border-radius);
@@ -227,6 +234,7 @@
                 }
             }
         }
+
         &.layout-sidebar-dark {
             &.layout-sidebar-anchored {
                 .sidebar-header {

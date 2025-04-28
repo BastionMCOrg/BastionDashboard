@@ -1,6 +1,7 @@
-<section class="flex flex-col [&>*]:py-8 [&>*:first-child]:!pt-0 [&>*:last-child]:!pb-0 divide-y divide-[var(--surface-border)]">
+<section
+    class="flex flex-col [&>*]:py-8 [&>*:first-child]:!pt-0 [&>*:last-child]:!pb-0 divide-y divide-[var(--surface-border)]">
     <div *ngIf="loading" class="flex justify-center items-center py-8">
-        <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"/>
+        <p-progressSpinner animationDuration=".5s" fill="var(--surface-ground)" strokeWidth="4" styleClass="w-12 h-12"/>
     </div>
 
     <div *ngIf="!loading">

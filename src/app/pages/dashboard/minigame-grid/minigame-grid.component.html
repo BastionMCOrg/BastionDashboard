@@ -5,14 +5,17 @@
             <span class="mt-1 body-xsmall">Sélectionnez un mini-jeu pour filtrer la liste des serveurs</span>
         </div>
         <div>
-            <p-button icon="pi pi-refresh" severity="secondary" [loading]="loading" (onClick)="loadMinigames()" class="mr-2"></p-button>
-            <p-button icon="pi pi-plus" label="Créer" severity="success" (onClick)="createMinigame()" class="mr-2"></p-button>
-            <p-button icon="pi pi-trash" label="Nettoyer" severity="danger" [loading]="cleaningSystem" (onClick)="confirmCleanupSystem()"></p-button>
+            <p-button (onClick)="loadMinigames()" [loading]="loading" class="mr-2" icon="pi pi-refresh"
+                      severity="secondary"></p-button>
+            <p-button (onClick)="createMinigame()" class="mr-2" icon="pi pi-plus" label="Créer"
+                      severity="success"></p-button>
+            <p-button (onClick)="confirmCleanupSystem()" [loading]="cleaningSystem" icon="pi pi-trash" label="Nettoyer"
+                      severity="danger"></p-button>
         </div>
     </div>
 
     <div *ngIf="loading" class="flex justify-center items-center py-6">
-        <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"/>
+        <p-progressSpinner animationDuration=".5s" fill="var(--surface-ground)" strokeWidth="4" styleClass="w-8 h-8"/>
     </div>
 
     <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
@@ -20,16 +23,19 @@
              class="cursor-default overflow-hidden">
             <div class="card h-full flex flex-col !p-0">
                 <!-- Header -->
-                <div class="flex items-center p-3" [style.borderBottom]="'3px solid var(--p-' + (minigame.color || 'blue') + '-500)'">
+                <div [style.borderBottom]="'3px solid var(--p-' + (minigame.color || 'blue') + '-500)'"
+                     class="flex items-center p-3">
                     <p-avatar
                         [label]="getInitials(minigame.name)"
-                        styleClass="mr-3 !w-10 !h-10 !text-lg font-medium"
                         [style]="{ backgroundColor: 'var(--p-' + (minigame.color || 'blue') + '-100)', color: 'var(--p-' + (minigame.color || 'blue') + '-950)' }"
                         shape="circle"
+                        styleClass="mr-3 !w-10 !h-10 !text-lg font-medium"
                     />
                     <div class="flex-1">
                         <div class="font-semibold">{{ minigame.name || 'Sans nom' }}</div>
-                        <div class="text-xs text-surface-500">{{ minigame.developerNames.join(', ') || 'Aucun développeur' }}</div>
+                        <div
+                            class="text-xs text-surface-500">{{ minigame.developerNames.join(', ') || 'Aucun développeur' }}
+                        </div>
                     </div>
                 </div>
 
@@ -53,30 +59,30 @@
                 <div class="border-t border-surface-200 dark:border-surface-700 p-3">
                     <div class="flex justify-between">
                         <p-button
+                            (onClick)="rebuildImage($event, minigame)"
+                            [loading]="rebuildingImage[minigame.key]"
                             icon="pi pi-sync"
+                            pTooltip="Reconstruire l'image Docker"
                             severity="secondary"
                             size="small"
-                            [loading]="rebuildingImage[minigame.key]"
-                            pTooltip="Reconstruire l'image Docker"
                             tooltipPosition="top"
-                            (onClick)="rebuildImage($event, minigame)"
                         ></p-button>
                         <div class="flex gap-2">
                             <p-button
+                                (onClick)="editMinigame($event, minigame)"
                                 icon="pi pi-pencil"
+                                pTooltip="Modifier"
                                 severity="secondary"
                                 size="small"
-                                pTooltip="Modifier"
                                 tooltipPosition="top"
-                                (onClick)="editMinigame($event, minigame)"
                             ></p-button>
                             <p-button
+                                (onClick)="deleteMinigame($event, minigame)"
                                 icon="pi pi-trash"
+                                pTooltip="Supprimer"
                                 severity="danger"
                                 size="small"
-                                pTooltip="Supprimer"
                                 tooltipPosition="top"
-                                (onClick)="deleteMinigame($event, minigame)"
                             ></p-button>
                         </div>
                     </div>
@@ -90,8 +96,8 @@
 
 <!-- Dialogue d'édition -->
 <app-minigame-edit
-    [(visible)]="editDialogVisible"
-    [minigame]="minigameToEdit"
-    [isCreateMode]="isCreateMode"
     (saveMinigame)="saveMinigame($event)"
+    [(visible)]="editDialogVisible"
+    [isCreateMode]="isCreateMode"
+    [minigame]="minigameToEdit"
 ></app-minigame-edit>

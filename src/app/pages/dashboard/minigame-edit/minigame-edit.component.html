@@ -1,12 +1,12 @@
 <p-dialog
-    [(visible)]="visible"
-    [modal]="true"
-    [style]="{width: '80vw', maxWidth: '900px'}"
-    [draggable]="false"
-    [resizable]="false"
     (onHide)="onHide()"
-    [header]="isCreateMode ? 'Créer un mini-jeu' : 'Modifier le mini-jeu'"
+    [(visible)]="visible"
     [closeOnEscape]="true"
+    [draggable]="false"
+    [header]="isCreateMode ? 'Créer un mini-jeu' : 'Modifier le mini-jeu'"
+    [modal]="true"
+    [resizable]="false"
+    [style]="{width: '80vw', maxWidth: '900px'}"
 >
     <form [formGroup]="minigameForm" class="p-fluid">
         <div class="grid">
@@ -15,7 +15,7 @@
             <div class="col-12 md:col-6">
                 <div class="field">
                     <label for="displayName">Nom d'affichage*</label>
-                    <input id="displayName" type="text" pInputText formControlName="displayName"/>
+                    <input formControlName="displayName" id="displayName" pInputText type="text"/>
                 </div>
             </div>
 
@@ -23,12 +23,12 @@
                 <div class="field">
                     <label for="name">Nom interne (généré automatiquement)</label>
                     <input
-                        id="name"
-                        type="text"
-                        pInputText
-                        formControlName="name"
                         class="bg-gray-100 dark:bg-gray-800"
+                        formControlName="name"
+                        id="name"
+                        pInputText
                         pTooltip="Identifiant unique généré à partir du nom d'affichage"
+                        type="text"
                     />
                     <small>Format adapté pour les URL et identifiants système</small>
                 </div>
@@ -38,11 +38,11 @@
                 <div class="field">
                     <label for="description">Description</label>
                     <textarea
+                        [rows]="3"
                         class="w-full"
+                        formControlName="description"
                         id="description"
                         pTextarea
-                        formControlName="description"
-                        [rows]="3"
                     ></textarea>
                 </div>
             </div>
@@ -51,25 +51,25 @@
                 <div class="field">
                     <label>Développeurs</label>
                     <div formArrayName="developerNames">
-                        <div class="flex items-center gap-2 mb-2"
-                             *ngFor="let dev of developerNames.controls; let i = index">
-                            <input pInputText [formControlName]="i" placeholder="Nom du développeur" class="flex-1"/>
+                        <div *ngFor="let dev of developerNames.controls; let i = index"
+                             class="flex items-center gap-2 mb-2">
+                            <input [formControlName]="i" class="flex-1" pInputText placeholder="Nom du développeur"/>
                             <button
-                                pButton
-                                type="button"
-                                icon="pi pi-trash"
-                                class="p-button-danger p-button-sm"
                                 (click)="removeDeveloperName(i)"
                                 [disabled]="developerNames.length === 1"
+                                class="p-button-danger p-button-sm"
+                                icon="pi pi-trash"
+                                pButton
+                                type="button"
                             ></button>
                         </div>
                         <button
+                            (click)="addDeveloperName()"
+                            class="p-button-outlined p-button-secondary"
+                            icon="pi pi-plus"
+                            label="Ajouter un développeur"
                             pButton
                             type="button"
-                            label="Ajouter un développeur"
-                            icon="pi pi-plus"
-                            class="p-button-outlined p-button-secondary"
-                            (click)="addDeveloperName()"
                         ></button>
                     </div>
                 </div>
@@ -83,11 +83,11 @@
                             <div class="field">
                                 <label for="minPlayers">Joueurs minimum*</label>
                                 <p-inputNumber
-                                    id="minPlayers"
-                                    [min]="1"
                                     [max]="100"
+                                    [min]="1"
                                     [showButtons]="true"
                                     formControlName="minPlayers"
+                                    id="minPlayers"
                                 ></p-inputNumber>
                             </div>
                         </div>
@@ -96,11 +96,11 @@
                             <div class="field">
                                 <label for="maxPlayers">Joueurs maximum*</label>
                                 <p-inputNumber
-                                    id="maxPlayers"
-                                    [min]="1"
                                     [max]="100"
+                                    [min]="1"
                                     [showButtons]="true"
                                     formControlName="maxPlayers"
+                                    id="maxPlayers"
                                 ></p-inputNumber>
                             </div>
                         </div>
@@ -109,11 +109,11 @@
                             <div class="field">
                                 <label for="minimalInstanceCount">Instances minimales</label>
                                 <p-inputNumber
-                                    id="minimalInstanceCount"
-                                    [min]="0"
                                     [max]="10"
+                                    [min]="0"
                                     [showButtons]="true"
                                     formControlName="minimalInstanceCount"
+                                    id="minimalInstanceCount"
                                 ></p-inputNumber>
                                 <small>Nombre minimum d'instances à maintenir actives</small>
                             </div>
@@ -130,11 +130,11 @@
                             <div class="field">
                                 <label for="memory">Mémoire allouée*</label>
                                 <input
-                                    id="memory"
-                                    type="text"
-                                    pInputText
                                     formControlName="memory"
+                                    id="memory"
+                                    pInputText
                                     pTooltip="Format: 2G ou 512M"
+                                    type="text"
                                 />
                             </div>
                         </div>
@@ -143,11 +143,11 @@
                             <div class="field">
                                 <label for="cpu">CPU alloués*</label>
                                 <p-inputNumber
-                                    id="cpu"
-                                    formControlName="cpu"
-                                    [min]="1"
                                     [max]="8"
+                                    [min]="1"
                                     [showButtons]="true"
+                                    formControlName="cpu"
+                                    id="cpu"
                                 ></p-inputNumber>
                             </div>
                         </div>
@@ -164,23 +164,23 @@
                         <div formArrayName="env">
                             <div *ngFor="let env of envVars.controls; let i = index" [formGroupName]="i"
                                  class="flex items-center gap-2 mb-2">
-                                <input pInputText formControlName="key" placeholder="Clé" class="flex-1"/>
-                                <input pInputText formControlName="value" placeholder="Valeur" class="flex-1"/>
+                                <input class="flex-1" formControlName="key" pInputText placeholder="Clé"/>
+                                <input class="flex-1" formControlName="value" pInputText placeholder="Valeur"/>
                                 <button
+                                    (click)="removeEnvVar(i)"
+                                    class="p-button-danger p-button-sm"
+                                    icon="pi pi-trash"
                                     pButton
                                     type="button"
-                                    icon="pi pi-trash"
-                                    class="p-button-danger p-button-sm"
-                                    (click)="removeEnvVar(i)"
                                 ></button>
                             </div>
                             <button
+                                (click)="addEnvVar()"
+                                class="p-button-outlined p-button-secondary"
+                                icon="pi pi-plus"
+                                label="Ajouter une variable"
                                 pButton
                                 type="button"
-                                label="Ajouter une variable"
-                                icon="pi pi-plus"
-                                class="p-button-outlined p-button-secondary"
-                                (click)="addEnvVar()"
                             ></button>
                         </div>
                     </div>
@@ -192,11 +192,11 @@
                 <div class="field">
                     <label for="serverType">Type de serveur</label>
                     <p-dropdown
-                        id="serverType"
                         [options]="serverTypeOptions"
-                        formControlName="serverType"
-                        placeholder="Sélectionnez un type"
                         [style]="{'width':'100%'}"
+                        formControlName="serverType"
+                        id="serverType"
+                        placeholder="Sélectionnez un type"
                     ></p-dropdown>
                 </div>
             </div>
@@ -204,11 +204,11 @@
             <div class="col-12 md:col-6">
                 <div class="field-checkbox mt-4">
                     <p-checkbox
-                        formControlName="isPermanent"
                         [binary]="true"
+                        formControlName="isPermanent"
                         inputId="isPermanent"
                     ></p-checkbox>
-                    <label for="isPermanent" class="ml-2">Serveur permanent</label>
+                    <label class="ml-2" for="isPermanent">Serveur permanent</label>
                     <small class="block mt-1">Les serveurs permanents ont au moins une instance active</small>
                 </div>
             </div>
@@ -217,15 +217,15 @@
 
     <ng-template pTemplate="footer">
         <p-button
+            (click)="onHide()"
             icon="pi pi-times"
             label="Annuler"
-            (click)="onHide()"
             styleClass="p-button-text"
         ></p-button>
         <p-button
-            icon="pi pi-check"
-            [label]="isCreateMode ? 'Créer' : 'Enregistrer'"
             (onClick)="onSubmit()"
+            [label]="isCreateMode ? 'Créer' : 'Enregistrer'"
+            icon="pi pi-check"
         ></p-button>
     </ng-template>
 </p-dialog>

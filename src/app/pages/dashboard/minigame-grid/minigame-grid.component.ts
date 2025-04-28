@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { TooltipModule } from 'primeng/tooltip';
-import { AvatarModule } from 'primeng/avatar';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { MinigameService } from '../../../core/services/minigame.service';
-import { Minigame } from '../../../core/models/minigame.model';
-import { getInitials } from '../../../core/utils/dashboard.utils';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TagModule } from 'primeng/tag';
-import { MinigameEditComponent } from '../minigame-edit/minigame-edit.component';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {TooltipModule} from 'primeng/tooltip';
+import {AvatarModule} from 'primeng/avatar';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {MinigameService} from '../../../core/services/minigame.service';
+import {Minigame} from '../../../core/models/minigame.model';
+import {getInitials} from '../../../core/utils/dashboard.utils';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {TagModule} from 'primeng/tag';
+import {MinigameEditComponent} from '../minigame-edit/minigame-edit.component';
 
 @Component({
     selector: 'app-minigame-grid',
@@ -42,7 +42,8 @@ export class MinigameGridComponent implements OnInit {
     public isCreateMode = false;
 
     public cleaningSystem: boolean = false;
-
+    // Helper pour obtenir les initiales pour l'avatar
+    public getInitials = getInitials;
     // Couleurs disponibles pour les barres
     private availableColors = ['blue', 'green', 'purple', 'orange', 'indigo', 'teal', 'red', 'pink', 'amber', 'cyan'];
 
@@ -50,7 +51,8 @@ export class MinigameGridComponent implements OnInit {
         private minigameService: MinigameService,
         private confirmationService: ConfirmationService,
         private messageService: MessageService
-    ) {}
+    ) {
+    }
 
     public async ngOnInit() {
         await this.loadMinigames();
@@ -81,10 +83,6 @@ export class MinigameGridComponent implements OnInit {
         } finally {
             this.loading = false;
         }
-    }
-
-    private getRandomColor(): string {
-        return this.availableColors[Math.floor(Math.random() * this.availableColors.length)];
     }
 
     public rebuildImage(event: Event, minigame: Minigame) {
@@ -197,6 +195,10 @@ export class MinigameGridComponent implements OnInit {
         });
     }
 
+    private getRandomColor(): string {
+        return this.availableColors[Math.floor(Math.random() * this.availableColors.length)];
+    }
+
     private async cleanupSystem(): Promise<void> {
         this.cleaningSystem = true;
         try {
@@ -226,7 +228,4 @@ export class MinigameGridComponent implements OnInit {
             this.cleaningSystem = false;
         }
     }
-
-    // Helper pour obtenir les initiales pour l'avatar
-    public getInitials = getInitials;
 }

@@ -20,15 +20,15 @@ import {AutoFocusModule} from 'primeng/autofocus';
 export class AppSearch {
     layoutService = inject(LayoutService);
 
-    toggleSearchBar() {
-        this.layoutService.layoutState.update((value) => ({ ...value, searchBarActive: !value.searchBarActive }));
-    }
-
     get searchBarActive(): boolean {
         return this.layoutService.layoutState().searchBarActive;
     }
 
     set searchBarActive(_val: boolean) {
-        this.layoutService.layoutState.update((prev) => ({ ...prev, searchBarActive: _val }));
+        this.layoutService.layoutState.update((prev) => ({...prev, searchBarActive: _val}));
+    }
+
+    toggleSearchBar() {
+        this.layoutService.layoutState.update((value) => ({...value, searchBarActive: !value.searchBarActive}));
     }
 }

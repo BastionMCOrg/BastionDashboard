@@ -29,9 +29,8 @@
         overflow: hidden;
         border-radius: var(--border-radius);
         background: transparent;
-        transition:
-            background-color var(--transition-duration),
-            box-shadow var(--transition-duration);
+        transition: background-color var(--transition-duration),
+        box-shadow var(--transition-duration);
         display: block;
         cursor: pointer;
         outline: 0 none;
@@ -106,9 +105,8 @@
                 color: var(--text-color);
                 overflow: hidden;
                 border-radius: var(--border-radius);
-                transition:
-                    background-color var(--transition-duration),
-                    box-shadow var(--transition-duration);
+                transition: background-color var(--transition-duration),
+                box-shadow var(--transition-duration);
                 display: block;
                 position: relative;
                 cursor: pointer;

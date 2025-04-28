@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Select, SelectItem} from 'primeng/select';
+import {Select} from 'primeng/select';
 import {NgClass, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
@@ -24,9 +24,9 @@ import {
     getUptime
 } from '../../../core/utils/dashboard.utils';
 import {MinigameService, PaginationParams} from '../../../core/services/minigame.service';
-import { ServerStatsService, ServerNotification } from '../../../core/services/server-stats.service';
-import { MessageService } from 'primeng/api';
-import { Subscription } from 'rxjs';
+import {ServerNotification, ServerStatsService} from '../../../core/services/server-stats.service';
+import {MessageService} from 'primeng/api';
+import {Subscription} from 'rxjs';
 import {Toast} from 'primeng/toast';
 
 @Component({
@@ -84,7 +84,13 @@ export class ServerListComponent implements OnInit, OnDestroy {
         page: 1,
         size: 10
     };
-
+    protected readonly getCpuStatusClass = getCpuStatusClass;
+    protected readonly getTpsSeverity = getTpsSeverity;
+    protected readonly getRamStatusClass = getRamStatusClass;
+    protected readonly getInitials = getInitials;
+    protected readonly getUptime = getUptime;
+    protected readonly getStatusSeverity = getStatusSeverity;
+    protected readonly getStatusDisplay = getStatusDisplay;
     // Subscriptions WebSocket
     private serverCreatedSubscription: Subscription | null = null;
     private serverUpdatedSubscription: Subscription | null = null;
@@ -95,7 +101,8 @@ export class ServerListComponent implements OnInit, OnDestroy {
         private serverStatsService: ServerStatsService,
         private messageService: MessageService,
         private router: Router
-    ) {}
+    ) {
+    }
 
     public async ngOnInit() {
         await this.loadMinigameFilters();
@@ -109,6 +116,49 @@ export class ServerListComponent implements OnInit, OnDestroy {
     public ngOnDestroy() {
         // Se désabonner des notifications
         this.unsubscribeFromServerNotifications();
+    }
+
+    public openQuickLaunchDialog() {
+        this.quickLaunchDialogVisible = true;
+    }
+
+    public async launchServer() {
+        if (!this.selectedMinigameToLaunch) return;
+
+        this.launchingServer = true;
+        try {
+            const result = await this.minigameService.startMinigameInstance(this.selectedMinigameToLaunch);
+            this.quickLaunchDialogVisible = false;
+            await this.router.navigate(['/servers', result.containerId]);
+        } catch (error) {
+            console.error('Erreur lors du lancement du serveur:', error);
+        } finally {
+            this.launchingServer = false;
+        }
+    }
+
+    public async onPageChange(event: any) {
+        this.paginationParams.page = event.page + 1;
+        this.paginationParams.size = event.rows;
+        await this.loadServers();
+    }
+
+    public async onFilterChange() {
+        this.paginationParams.page = 1;
+        await this.loadServers();
+    }
+
+    public async stopServer(server: any) {
+        try {
+            await this.minigameService.stopMinigameInstance(
+                server.minigame,
+                server.containerId
+            );
+            // Pas besoin de recharger manuellement, les notifications WebSocket s'en chargeront
+            // await this.loadServers();
+        } catch (error) {
+            console.error(`Erreur lors de l'arrêt du serveur ${server.id}:`, error);
+        }
     }
 
     protected async loadServers() {
@@ -357,55 +407,4 @@ export class ServerListComponent implements OnInit, OnDestroy {
             console.error('Erreur lors du chargement des mini-jeux disponibles:', error);
         }
     }
-
-    public openQuickLaunchDialog() {
-        this.quickLaunchDialogVisible = true;
-    }
-
-    public async launchServer() {
-        if (!this.selectedMinigameToLaunch) return;
-
-        this.launchingServer = true;
-        try {
-            const result = await this.minigameService.startMinigameInstance(this.selectedMinigameToLaunch);
-            this.quickLaunchDialogVisible = false;
-            await this.router.navigate(['/servers', result.containerId]);
-        } catch (error) {
-            console.error('Erreur lors du lancement du serveur:', error);
-        } finally {
-            this.launchingServer = false;
-        }
-    }
-
-    public async onPageChange(event: any) {
-        this.paginationParams.page = event.page + 1;
-        this.paginationParams.size = event.rows;
-        await this.loadServers();
-    }
-
-    public async onFilterChange() {
-        this.paginationParams.page = 1;
-        await this.loadServers();
-    }
-
-    public async stopServer(server: any) {
-        try {
-            await this.minigameService.stopMinigameInstance(
-                server.minigame,
-                server.containerId
-            );
-            // Pas besoin de recharger manuellement, les notifications WebSocket s'en chargeront
-            // await this.loadServers();
-        } catch (error) {
-            console.error(`Erreur lors de l'arrêt du serveur ${server.id}:`, error);
-        }
-    }
-
-    protected readonly getCpuStatusClass = getCpuStatusClass;
-    protected readonly getTpsSeverity = getTpsSeverity;
-    protected readonly getRamStatusClass = getRamStatusClass;
-    protected readonly getInitials = getInitials;
-    protected readonly getUptime = getUptime;
-    protected readonly getStatusSeverity = getStatusSeverity;
-    protected readonly getStatusDisplay = getStatusDisplay;
 }

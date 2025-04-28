@@ -39,5 +39,5 @@ export class CustomMeter {
         }
         return null;
     });
-  protected readonly trackByFn = trackByFn;
+    protected readonly trackByFn = trackByFn;
 }

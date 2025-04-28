@@ -25,36 +25,19 @@ import {sampleDataReductionByArray} from '../../core/utils/utils';
     `
 })
 export class MultiLineChart {
-    @HostBinding('class') get styleClass() {
-        return this.class();
-    }
-
     layoutService = inject(LayoutService);
-
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
-
     class = input<string>('');
-
     labels = input<string[]>([]);
-
     datasets = input<any[]>([]);
-
     bgColors = input<(string | string[])[] | undefined | null | any>();
-
     borderColors = input<(string | string[])[] | undefined | null | any>();
-
     show = input<number>(12);
-
     tooltipPrefix = input<string>('$');
-
     option = input<string>('month');
-
     data: any;
-
     plugins: any;
-
     chartData: any;
-
     chartOptions: any;
 
     constructor() {
@@ -65,6 +48,10 @@ export class MultiLineChart {
 
             untracked(() => this.tooltipPrefix());
         });
+    }
+
+    @HostBinding('class') get styleClass() {
+        return this.class();
     }
 
     drawChart() {
@@ -116,7 +103,7 @@ export class MultiLineChart {
 
                         const {
                             ctx,
-                            chartArea: { top, bottom }
+                            chartArea: {top, bottom}
                         } = context.chart;
                         const gradientBg = ctx.createLinearGradient(0, top, 0, bottom);
                         const colorTranches = 1 / (bg.length - 1);
@@ -129,11 +116,11 @@ export class MultiLineChart {
                     }
                 };
             });
-        sampledData.forEach(({ x, y }) => {
+        sampledData.forEach(({x, y}) => {
             Array(lineCount)
                 .fill(null)
                 .forEach((_, i) => {
-                    dataArr[i].data.push({ x, y: y[i] });
+                    dataArr[i].data.push({x, y: y[i]});
                 });
         });
         this.data = dataArr;
@@ -149,8 +136,8 @@ export class MultiLineChart {
                 const {
                     ctx,
                     tooltip,
-                    chartArea: { bottom },
-                    scales: { x }
+                    chartArea: {bottom},
+                    scales: {x}
                 } = chart;
                 if (tooltip._active.length > 0) {
                     const xCoor = x.getPixelForValue(tooltip.dataPoints[0].raw.x);
@@ -198,7 +185,7 @@ export class MultiLineChart {
                     enabled: false,
                     position: 'nearest',
                     external: function (context: any) {
-                        const { chart, tooltip } = context;
+                        const {chart, tooltip} = context;
                         let tooltipEl = chart.canvas.parentNode.querySelector('div.chartjs-tooltip');
                         if (!tooltipEl) {
                             tooltipEl = document.createElement('div');
@@ -258,7 +245,7 @@ export class MultiLineChart {
                             tooltipEl.appendChild(tooltipBody);
                         }
 
-                        const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas;
+                        const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
 
                         tooltipEl.style.opacity = 1;
                         tooltipEl.style.font = tooltip.options.bodyFont.string;

@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import axios, { AxiosInstance } from 'axios';
+import {Injectable} from '@angular/core';
+import axios, {AxiosInstance} from 'axios';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
-    private api: AxiosInstance;
     readonly baseURL = 'https://hydra.bastionmc.fr';
+    private api: AxiosInstance;
 
     constructor() {
         // Configuration d'Axios avec l'URL de base
@@ -54,7 +54,7 @@ export class ApiService {
      */
     public async get<T>(url: string, params?: any): Promise<T> {
         try {
-            const response = await this.api.get<T>(url, { params });
+            const response = await this.api.get<T>(url, {params});
             return response.data;
         } catch (error) {
             console.error(`Erreur GET sur ${url}:`, error);
@@ -67,7 +67,7 @@ export class ApiService {
      */
     public async post<T>(url: string, data?: any, params?: any): Promise<T> {
         try {
-            const response = await this.api.post<T>(url, data, { params });
+            const response = await this.api.post<T>(url, data, {params});
             return response.data;
         } catch (error) {
             console.error(`Erreur POST sur ${url}:`, error);

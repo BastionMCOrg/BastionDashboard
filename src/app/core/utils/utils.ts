@@ -335,7 +335,7 @@ export const trackByFn = (): string => {
     return uniqueId;
 }
 
-export const ranges: {name: string, unit: string}[] = [
+export const ranges: { name: string, unit: string }[] = [
     {name: 'Quotidien', unit: 'day'},
     {name: 'Hebdomadaire', unit: 'week'},
     {name: 'Mensuel', unit: 'month'},

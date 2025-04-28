@@ -38,7 +38,7 @@ export class GaugeChart {
 
     chartOptions: any;
 
-    chartDim = signal<any>({ width: '100%', height: '100%' });
+    chartDim = signal<any>({width: '100%', height: '100%'});
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
 
@@ -71,9 +71,9 @@ export class GaugeChart {
                         }
                         const {
                             ctx,
-                            chartArea: { width, height }
+                            chartArea: {width, height}
                         } = context.chart;
-                        this.chartDim.set({ width: width, height: height });
+                        this.chartDim.set({width: width, height: height});
                         const gradientBg = ctx.createLinearGradient(0, 0, width, 0);
                         gradientBg.addColorStop(0, 'rgba(220, 38, 38, 1)');
                         gradientBg.addColorStop(0.5, 'rgba(250, 204, 21, 1)');

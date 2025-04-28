@@ -6,43 +6,45 @@
         </div>
         <div class="flex flex-wrap items-center gap-3.5">
             <p-select
+                (onChange)="onFilterChange()"
                 *ngIf="!minigameFilter"
-                [options]="minigameFilters"
                 [(ngModel)]="selectedMinigameFilter"
-                placeholder="Tous les mini-jeux"
-                styleClass="w-48"
+                [options]="minigameFilters"
                 optionLabel="label"
                 optionValue="value"
-                (onChange)="onFilterChange()"
+                placeholder="Tous les mini-jeux"
+                styleClass="w-48"
             ></p-select>
             <p-icon-field>
                 <p-inputicon class="pi pi-search"/>
-                <input pInputText class="!rounded-lg !py-1.5 !w-56" [(ngModel)]="tableSearch"
-                       placeholder="Rechercher" (keyup.enter)="onFilterChange()"/>
+                <input (keyup.enter)="onFilterChange()" [(ngModel)]="tableSearch" class="!rounded-lg !py-1.5 !w-56"
+                       pInputText placeholder="Rechercher"/>
             </p-icon-field>
-            <p-button icon="pi pi-refresh" severity="secondary" [loading]="loading" (onClick)="loadServers()"></p-button>
-            <p-button icon="pi pi-play" label="Lancer" severity="success" (onClick)="openQuickLaunchDialog()"></p-button>
+            <p-button (onClick)="loadServers()" [loading]="loading" icon="pi pi-refresh"
+                      severity="secondary"></p-button>
+            <p-button (onClick)="openQuickLaunchDialog()" icon="pi pi-play" label="Lancer"
+                      severity="success"></p-button>
         </div>
     </div>
 
     <div *ngIf="loading" class="flex justify-center items-center py-8">
-        <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"/>
+        <p-progressSpinner animationDuration=".5s" fill="var(--surface-ground)" strokeWidth="4" styleClass="w-12 h-12"/>
     </div>
 
     <div *ngIf="!loading" class="w-full overflow-hidden">
         <p-table
-            [value]="servers"
-            [rows]="paginationParams.size"
-            [totalRecords]="totalRecords"
-            [paginator]="true"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Page {currentPage} sur {totalPages} ({totalRecords} serveurs)"
-            [globalFilterFields]="['id', 'minigame', 'map']"
+            (onPage)="onPageChange($event)"
             [(selection)]="selectedServer"
             [filterDelay]="0"
-            [rowHover]="true"
+            [globalFilterFields]="['id', 'minigame', 'map']"
             [lazy]="true"
-            (onPage)="onPageChange($event)"
+            [paginator]="true"
+            [rowHover]="true"
+            [rows]="paginationParams.size"
+            [showCurrentPageReport]="true"
+            [totalRecords]="totalRecords"
+            [value]="servers"
+            currentPageReportTemplate="Page {currentPage} sur {totalPages} ({totalRecords} serveurs)"
             emptyMessage="Aucun serveur trouvé"
         >
             <ng-template pTemplate="header">
@@ -55,15 +57,15 @@
                     <th style="width: 150px">Actions</th>
                 </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-server>
-                <tr [pSelectableRow]="server" [ngClass]="{'highlight-row': server._isNew}">
+            <ng-template let-server pTemplate="body">
+                <tr [ngClass]="{'highlight-row': server._isNew}" [pSelectableRow]="server">
                     <td style="max-width: 150px; min-width: 150px;">
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
                                 <p-tag
                                     [severity]="getStatusSeverity(server.status)"
-                                    [value]="getStatusDisplay(server.status)"
                                     [styleClass]="'!px-1.5 !py-1 !text-xs'"
+                                    [value]="getStatusDisplay(server.status)"
                                 ></p-tag>
                                 <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ server.id }}</span>
                             </div>
@@ -76,9 +78,9 @@
                         <div class="flex items-center">
                             <p-avatar
                                 [label]="getInitials(server.minigame)"
-                                styleClass="mr-2 !w-7 !h-7 !text-xs font-medium flex-shrink-0"
                                 [style]="{ backgroundColor: 'var(--p-' + server.color + '-100)', color: 'var(--p-' + server.color + '-950)' }"
                                 shape="circle"
+                                styleClass="mr-2 !w-7 !h-7 !text-xs font-medium flex-shrink-0"
                             />
                             <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ server.minigame }}</span>
                         </div>
@@ -97,9 +99,9 @@
                         <div class="flex items-center gap-2">
                             <span class="body-xsmall">{{ server.players.current }}/{{ server.players.max }}</span>
                             <p-progressBar
-                                [value]="(server.players.current / server.players.max) * 100"
                                 [showValue]="false"
                                 [style]="{'height': '5px', 'width': '50px'}"
+                                [value]="(server.players.current / server.players.max) * 100"
                                 styleClass="!rounded-full"
                             />
                         </div>
@@ -107,20 +109,20 @@
                     <td>
                         <div class="flex gap-2 items-center justify-end">
                             <p-button
+                                [routerLink]="['/servers', server.id]"
                                 icon="pi pi-info-circle"
+                                pTooltip="Détails"
                                 severity="secondary"
                                 size="small"
-                                pTooltip="Détails"
                                 tooltipPosition="top"
-                                [routerLink]="['/servers', server.id]"
                             />
                             <p-button
+                                (onClick)="stopServer(server)"
                                 icon="pi pi-power-off"
+                                pTooltip="Arrêter"
                                 severity="danger"
                                 size="small"
-                                pTooltip="Arrêter"
                                 tooltipPosition="top"
-                                (onClick)="stopServer(server)"
                             />
                         </div>
                     </td>
@@ -131,13 +133,13 @@
 
     <!-- Dialog de lancement rapide de serveur (simplifié) -->
     <p-dialog
-        header="Lancer un serveur"
         [(visible)]="quickLaunchDialogVisible"
-        [style]="{width: '400px'}"
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false"
         [closable]="!launchingServer"
+        [draggable]="false"
+        [modal]="true"
+        [resizable]="false"
+        [style]="{width: '400px'}"
+        header="Lancer un serveur"
     >
         <div class="p-fluid">
             <div class="mb-3">
@@ -145,31 +147,31 @@
             </div>
 
             <p-select
-                appendTo="body"
-                [options]="availableMinigames"
                 [(ngModel)]="selectedMinigameToLaunch"
-                placeholder="Sélectionner un mini-jeu"
                 [disabled]="launchingServer"
-                styleClass="w-full"
+                [options]="availableMinigames"
+                appendTo="body"
                 optionLabel="label"
                 optionValue="value"
+                placeholder="Sélectionner un mini-jeu"
+                styleClass="w-full"
             ></p-select>
         </div>
 
         <ng-template pTemplate="footer">
             <p-button
-                label="Annuler"
-                icon="pi pi-times"
                 (onClick)="quickLaunchDialogVisible = false"
                 [disabled]="launchingServer"
+                icon="pi pi-times"
+                label="Annuler"
                 styleClass="p-button-text"
             ></p-button>
             <p-button
-                label="Lancer"
-                icon="pi pi-play"
                 (onClick)="launchServer()"
                 [disabled]="!selectedMinigameToLaunch || launchingServer"
                 [loading]="launchingServer"
+                icon="pi pi-play"
+                label="Lancer"
                 severity="success"
             ></p-button>
         </ng-template>

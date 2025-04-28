@@ -59,48 +59,28 @@ export class LayoutService {
     layoutConfig = signal<layoutConfig>(this._config);
 
     layoutState = signal<LayoutState>(this._state);
-
-    private configUpdate = new Subject<layoutConfig>();
-
-    private overlayOpen = new Subject<any>();
-
-    private menuSource = new Subject<MenuChangeEvent>();
-
-    private resetSource = new Subject();
-
-    menuSource$ = this.menuSource.asObservable();
-
-    resetSource$ = this.resetSource.asObservable();
-
-    configUpdate$ = this.configUpdate.asObservable();
-
-    overlayOpen$ = this.overlayOpen.asObservable();
-
     isDarkTheme = computed(() => this.layoutConfig().darkTheme);
-
     isSidebarActive = computed(() => this.layoutState().overlayMenuActive || this.layoutState().staticMenuMobileActive || this.layoutState().overlaySubmenuActive);
-
     isSlim = computed(() => this.layoutConfig().menuMode === 'slim');
-
     isHorizontal = computed(() => this.layoutConfig().menuMode === 'horizontal');
-
     isOverlay = computed(() => this.layoutConfig().menuMode === 'overlay');
-
     isCompact = computed(() => this.layoutConfig().menuMode === 'compact');
-
     isStatic = computed(() => this.layoutConfig().menuMode === 'static');
-
     isReveal = computed(() => this.layoutConfig().menuMode === 'reveal');
-
     isDrawer = computed(() => this.layoutConfig().menuMode === 'drawer');
-
     transitionComplete = signal<boolean>(false);
-
     isSidebarStateChanged = computed(() => {
         const layoutConfig = this.layoutConfig();
         return layoutConfig.menuMode === 'horizontal' || layoutConfig.menuMode === 'slim' || layoutConfig.menuMode === 'slim-plus';
     });
-
+    private configUpdate = new Subject<layoutConfig>();
+    configUpdate$ = this.configUpdate.asObservable();
+    private overlayOpen = new Subject<any>();
+    overlayOpen$ = this.overlayOpen.asObservable();
+    private menuSource = new Subject<MenuChangeEvent>();
+    menuSource$ = this.menuSource.asObservable();
+    private resetSource = new Subject();
+    resetSource$ = this.resetSource.asObservable();
     private initialized = false;
 
     constructor() {
@@ -127,29 +107,6 @@ export class LayoutService {
         });
     }
 
-    private handleDarkModeTransition(config: layoutConfig): void {
-        const supportsViewTransition = 'startViewTransition' in document;
-
-        if (supportsViewTransition) {
-            this.startViewTransition(config);
-        } else {
-            this.toggleDarkMode(config);
-            this.onTransitionEnd();
-        }
-    }
-
-    private startViewTransition(config: layoutConfig): void {
-        const transition = (document as any).startViewTransition(() => {
-            this.toggleDarkMode(config);
-        });
-
-        transition.ready
-            .then(() => {
-                this.onTransitionEnd();
-            })
-            .catch(() => {});
-    }
-
     toggleDarkMode(config?: layoutConfig): void {
         const _config = config || this.layoutConfig();
         if (_config.darkTheme) {
@@ -157,13 +114,6 @@ export class LayoutService {
         } else {
             document.documentElement.classList.remove('app-dark');
         }
-    }
-
-    private onTransitionEnd() {
-        this.transitionComplete.set(true);
-        setTimeout(() => {
-            this.transitionComplete.set(false);
-        });
     }
 
     toggleConfigSidebar() {
@@ -190,7 +140,7 @@ export class LayoutService {
 
     onMenuToggle() {
         if (this.isOverlay()) {
-            this.updateLayoutState({ overlayMenuActive: !this.layoutState().overlayMenuActive });
+            this.updateLayoutState({overlayMenuActive: !this.layoutState().overlayMenuActive});
 
             if (this.layoutState().overlayMenuActive) {
                 this.overlayOpen.next(null);
@@ -198,17 +148,18 @@ export class LayoutService {
         }
 
         if (this.isDesktop()) {
-            this.updateLayoutState({ staticMenuDesktopInactive: !this.layoutState().staticMenuDesktopInactive });
+            this.updateLayoutState({staticMenuDesktopInactive: !this.layoutState().staticMenuDesktopInactive});
         } else {
-            this.updateLayoutState({ staticMenuMobileActive: !this.layoutState().staticMenuMobileActive });
+            this.updateLayoutState({staticMenuMobileActive: !this.layoutState().staticMenuMobileActive});
 
             if (this.layoutState().staticMenuMobileActive) {
                 this.overlayOpen.next(null);
             }
         }
     }
+
     onConfigUpdate() {
-        this._config = { ...this.layoutConfig() };
+        this._config = {...this.layoutConfig()};
         this.configUpdate.next(this.layoutConfig());
     }
 
@@ -225,19 +176,19 @@ export class LayoutService {
     }
 
     showProfileSidebar() {
-        this.updateLayoutState({ profileSidebarVisible: true });
+        this.updateLayoutState({profileSidebarVisible: true});
     }
 
     showConfigSidebar() {
-        this.updateLayoutState({ configSidebarVisible: true });
+        this.updateLayoutState({configSidebarVisible: true});
     }
 
     hideConfigSidebar() {
-        this.updateLayoutState({ configSidebarVisible: false });
+        this.updateLayoutState({configSidebarVisible: false});
     }
 
     toggleRightMenu() {
-        this.updateLayoutState({ rightMenuVisible: !this.layoutState().rightMenuVisible });
+        this.updateLayoutState({rightMenuVisible: !this.layoutState().rightMenuVisible});
     }
 
     isDesktop() {
@@ -246,5 +197,36 @@ export class LayoutService {
 
     isMobile() {
         return !this.isDesktop();
+    }
+
+    private handleDarkModeTransition(config: layoutConfig): void {
+        const supportsViewTransition = 'startViewTransition' in document;
+
+        if (supportsViewTransition) {
+            this.startViewTransition(config);
+        } else {
+            this.toggleDarkMode(config);
+            this.onTransitionEnd();
+        }
+    }
+
+    private startViewTransition(config: layoutConfig): void {
+        const transition = (document as any).startViewTransition(() => {
+            this.toggleDarkMode(config);
+        });
+
+        transition.ready
+            .then(() => {
+                this.onTransitionEnd();
+            })
+            .catch(() => {
+            });
+    }
+
+    private onTransitionEnd() {
+        this.transitionComplete.set(true);
+        setTimeout(() => {
+            this.transitionComplete.set(false);
+        });
     }
 }

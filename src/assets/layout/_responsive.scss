@@ -5,6 +5,7 @@
         .layout-sidebar {
             margin-left: -17rem;
         }
+
         .layout-topbar {
             .menu-button {
                 i:before {
@@ -22,6 +23,7 @@
                 }
             }
         }
+
         .layout-sidebar {
             position: absolute;
             left: 0;
@@ -29,12 +31,14 @@
             background-color: var(--d-sidebar-bg-color);
             z-index: 99999;
         }
+
         &.layout-overlay-active {
             .layout-mask {
                 opacity: 1;
                 z-index: 998;
                 visibility: visible;
             }
+
             .layout-sidebar {
                 border-right: var(--d-sidebar-border);
                 position: absolute;
@@ -56,6 +60,7 @@
         flex-direction: column;
         width: 100%;
         padding: 0;
+
         .topbar-left {
             width: 100%;
             padding: 0.75rem 2rem;
@@ -95,12 +100,15 @@
         .topbar-menu {
             justify-content: space-between;
             gap: 1rem;
+
             > li {
                 margin-left: 0;
+
                 &:first-child {
                     margin-right: auto;
                     margin-left: 0;
                 }
+
                 &.profile-item {
                     border-left: 0;
                     border-right: 0;

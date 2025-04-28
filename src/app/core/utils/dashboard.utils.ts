@@ -44,18 +44,26 @@ export function getTpsSeverity(tps: number): Severity {
 
 export function getStatusSeverity(status: string): Severity {
     switch (status) {
-        case 'running': return 'success';
-        case 'starting': return 'info';
-        case 'stopped': return 'danger';
-        default: return 'warn';
+        case 'running':
+            return 'success';
+        case 'starting':
+            return 'info';
+        case 'stopped':
+            return 'danger';
+        default:
+            return 'warn';
     }
 }
 
 export function getStatusDisplay(status: string): string {
     switch (status) {
-        case 'running': return 'Actif';
-        case 'starting': return 'Démarrage';
-        case 'stopped': return 'Arrêté';
-        default: return status;
+        case 'running':
+            return 'Actif';
+        case 'starting':
+            return 'Démarrage';
+        case 'stopped':
+            return 'Arrêté';
+        default:
+            return status;
     }
 }

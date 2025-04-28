@@ -1,7 +1,7 @@
 // src/app/core/services/server-stats.service.ts
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
+import {Injectable, OnDestroy} from '@angular/core';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {io, Socket} from 'socket.io-client';
 
 export interface ServerStats {
     serverId: string;

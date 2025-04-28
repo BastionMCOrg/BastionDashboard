@@ -26,7 +26,8 @@ import {ServerListComponent} from './server-list/server-list.component';
 export class DashboardComponent implements OnInit {
     loading = true;
 
-    constructor(private minigameService: MinigameService) {}
+    constructor(private minigameService: MinigameService) {
+    }
 
     async ngOnInit() {
         try {

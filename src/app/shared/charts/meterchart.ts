@@ -1,15 +1,15 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  HostBinding,
-  inject,
-  input,
-  output,
-  untracked,
-  viewChild
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    ElementRef,
+    HostBinding,
+    inject,
+    input,
+    output,
+    untracked,
+    viewChild
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {LayoutService} from '../../core/services/layout.service';
@@ -66,19 +66,9 @@ import {sampleDataByFixedLength, trackByFn} from '../../core/utils/utils';
     }
 })
 export class MeterChart {
-    @HostBinding('class') get classList() {
-        return this.class();
-    }
-
-    protected readonly parseFloat = parseFloat;
-
-
     layoutService = inject(LayoutService);
-
     class = input<string>('');
-
     show = input<number>(6);
-
     meterOptionsProps = input<any>({
         max: null,
         bgColors: null,
@@ -90,28 +80,20 @@ export class MeterChart {
         xAxisPosition: 'bottom',
         timeUnit: 'week'
     });
-
     currency = input<string>('$');
-
     computedData = output<any>();
-
     data: any;
-
     meterOptions: any;
-
     container = viewChild<ElementRef>('container');
-
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
-
-    get isDataArray() {
-        return Array.isArray(this.data[0].y);
-    }
+    protected readonly parseFloat = parseFloat;
+    protected readonly trackByFn = trackByFn;
 
     constructor() {
         effect(() => {
             untracked(() => this.show());
             this.isDarkTheme();
-            const { data, timeUnit } = this.meterOptionsProps();
+            const {data, timeUnit} = this.meterOptionsProps();
             if (data) {
                 this.data = sampleDataByFixedLength(data, timeUnit, this.show());
                 this.meterOptions = this.setMeterOptions(timeUnit, this.data);
@@ -119,6 +101,14 @@ export class MeterChart {
                 this.computedData.emit(this.data);
             }
         });
+    }
+
+    @HostBinding('class') get classList() {
+        return this.class();
+    }
+
+    get isDataArray() {
+        return Array.isArray(this.data[0].y);
     }
 
     setMeterOptions(option: any, _data: any) {
@@ -180,6 +170,4 @@ export class MeterChart {
             timeUnit: option
         };
     }
-
-  protected readonly trackByFn = trackByFn;
 }

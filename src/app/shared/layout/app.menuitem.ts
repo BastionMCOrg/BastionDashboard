@@ -10,10 +10,10 @@ import {RippleModule} from 'primeng/ripple';
 import {LayoutService} from '../../core/services/layout.service';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: '[app-menuitem]',
-  imports: [CommonModule, RouterModule, RippleModule, TooltipModule],
-  template: `
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: '[app-menuitem]',
+    imports: [CommonModule, RouterModule, RippleModule, TooltipModule],
+    template: `
     <ng-container>
       <div *ngIf="root && item.visible !== false" class="layout-menuitem-root-text">
         {{ item.label }}
@@ -75,36 +75,36 @@ import {LayoutService} from '../../core/services/layout.service';
       </ul>
     </ng-container>
   `,
-  standalone: true,
-  animations: [
-    trigger('children', [
-      state(
-        'collapsed',
-        style({
-          height: '0'
-        })
-      ),
-      state(
-        'expanded',
-        style({
-          height: '*'
-        })
-      ),
-      state(
-        'hidden',
-        style({
-          display: 'none'
-        })
-      ),
-      state(
-        'visible',
-        style({
-          display: 'block'
-        })
-      ),
-      transition('collapsed <=> expanded', animate('400ms cubic-bezier(0.86, 0, 0.07, 1)'))
-    ])
-  ]
+    standalone: true,
+    animations: [
+        trigger('children', [
+            state(
+                'collapsed',
+                style({
+                    height: '0'
+                })
+            ),
+            state(
+                'expanded',
+                style({
+                    height: '*'
+                })
+            ),
+            state(
+                'hidden',
+                style({
+                    display: 'none'
+                })
+            ),
+            state(
+                'visible',
+                style({
+                    display: 'block'
+                })
+            ),
+            transition('collapsed <=> expanded', animate('400ms cubic-bezier(0.86, 0, 0.07, 1)'))
+        ])
+    ]
 })
 export class AppMenuitem implements OnInit, OnDestroy {
     @Input() item: any;
@@ -116,39 +116,13 @@ export class AppMenuitem implements OnInit, OnDestroy {
     @Input() parentKey!: string;
 
     @ViewChild('submenu') submenu!: ElementRef;
-
-    @HostBinding('class.active-menuitem')
-    get activeClass() {
-        return this.active;
-    }
-
     active = false;
-
     menuSourceSubscription: Subscription;
-
     menuResetSubscription: Subscription;
-
     key: string = '';
-
-    get submenuAnimation() {
-        if (this.layoutService.isDesktop() && (this.layoutService.isHorizontal() || this.layoutService.isSlim() || this.layoutService.isCompact())) {
-            return this.active ? 'visible' : 'hidden';
-        } else return this.root ? 'expanded' : this.active ? 'expanded' : 'collapsed';
-    }
-
     isSlim = computed(() => this.layoutService.isSlim());
-
     isCompact = computed(() => this.layoutService.isCompact());
-
     isHorizontal = computed(() => this.layoutService.isHorizontal());
-
-    get isDesktop() {
-        return this.layoutService.isDesktop();
-    }
-
-    get isMobile() {
-        return this.layoutService.isMobile();
-    }
 
     constructor(
         public layoutService: LayoutService,
@@ -189,6 +163,25 @@ export class AppMenuitem implements OnInit, OnDestroy {
         });
     }
 
+    @HostBinding('class.active-menuitem')
+    get activeClass() {
+        return this.active;
+    }
+
+    get submenuAnimation() {
+        if (this.layoutService.isDesktop() && (this.layoutService.isHorizontal() || this.layoutService.isSlim() || this.layoutService.isCompact())) {
+            return this.active ? 'visible' : 'hidden';
+        } else return this.root ? 'expanded' : this.active ? 'expanded' : 'collapsed';
+    }
+
+    get isDesktop() {
+        return this.layoutService.isDesktop();
+    }
+
+    get isMobile() {
+        return this.layoutService.isMobile();
+    }
+
     ngOnInit() {
         this.key = this.parentKey ? this.parentKey + '-' + this.index : String(this.index);
 
@@ -218,6 +211,7 @@ export class AppMenuitem implements OnInit, OnDestroy {
             });
         }
     }
+
     onSubmenuAnimated(event: AnimationEvent) {
         if (event.toState === 'visible' && this.isDesktop && (this.isHorizontal() || this.isSlim() || this.isCompact())) {
             const el = <HTMLUListElement>event.element;
@@ -228,7 +222,7 @@ export class AppMenuitem implements OnInit, OnDestroy {
 
     calculatePosition(overlay: HTMLElement, target: HTMLElement) {
         if (overlay) {
-            const { left, top } = target.getBoundingClientRect();
+            const {left, top} = target.getBoundingClientRect();
             const [vWidth, vHeight] = [window.innerWidth, window.innerHeight];
             const [oWidth, oHeight] = [overlay.offsetWidth, overlay.offsetHeight];
             const scrollbarWidth = DomHandler.calculateScrollbarWidth();
@@ -263,7 +257,7 @@ export class AppMenuitem implements OnInit, OnDestroy {
 
         // execute command
         if (this.item.command) {
-            this.item.command({ originalEvent: event, item: this.item });
+            this.item.command({originalEvent: event, item: this.item});
         }
 
         // toggle active state
@@ -290,7 +284,7 @@ export class AppMenuitem implements OnInit, OnDestroy {
             }
         }
 
-        this.layoutService.onMenuStateChange({ key: this.key });
+        this.layoutService.onMenuStateChange({key: this.key});
     }
 
     onMouseEnter() {
@@ -298,7 +292,7 @@ export class AppMenuitem implements OnInit, OnDestroy {
         if (this.root && (this.isSlim() || this.isHorizontal() || this.isCompact()) && this.layoutService.isDesktop()) {
             if (this.layoutService.layoutState().menuHoverActive) {
                 this.active = true;
-                this.layoutService.onMenuStateChange({ key: this.key });
+                this.layoutService.onMenuStateChange({key: this.key});
             }
         }
     }

@@ -199,6 +199,6 @@ export class AppTopbar {
     }
 
     toggleSearchBar() {
-        this.layoutService.layoutState.update((value) => ({ ...value, searchBarActive: !value.searchBarActive }));
+        this.layoutService.layoutState.update((value) => ({...value, searchBarActive: !value.searchBarActive}));
     }
 }

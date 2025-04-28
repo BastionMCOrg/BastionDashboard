@@ -13,7 +13,7 @@ import {AppSearch} from './app.search';
 @Component({
     selector: 'app-layout',
     standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppConfigurator, AppBreadcrumb, AppFooter, AppSearch, AppBreadcrumb, AppFooter, AppSearch],
+    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppConfigurator, AppBreadcrumb, AppFooter, AppSearch, AppBreadcrumb, AppFooter, AppSearch],
     template: `<div class="layout-wrapper" [ngClass]="containerClass()">
         <div app-sidebar></div>
         <div class="layout-content-wrapper">
@@ -42,6 +42,27 @@ export class AppLayout {
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;
 
     @ViewChild(AppTopbar) appTopBar!: AppTopbar;
+    containerClass = computed(() => {
+        const layoutConfig = this.layoutService.layoutConfig();
+        const layoutState = this.layoutService.layoutState();
+
+        return {
+            'layout-overlay': layoutConfig.menuMode === 'overlay',
+            'layout-static': layoutConfig.menuMode === 'static',
+            'layout-slim': layoutConfig.menuMode === 'slim',
+            'layout-horizontal': layoutConfig.menuMode === 'horizontal',
+            'layout-compact': layoutConfig.menuMode === 'compact',
+            'layout-reveal': layoutConfig.menuMode === 'reveal',
+            'layout-drawer': layoutConfig.menuMode === 'drawer',
+            'layout-overlay-active': layoutState.overlayMenuActive || layoutState.staticMenuMobileActive,
+            'layout-mobile-active': layoutState.staticMenuMobileActive,
+            'layout-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
+            'layout-sidebar-active': layoutState.sidebarActive,
+            'layout-sidebar-anchored': layoutState.anchored,
+            [`layout-card-${layoutConfig.cardStyle}`]: true,
+            [`layout-sidebar-${layoutConfig.menuTheme}`]: true
+        };
+    });
 
     constructor(
         public layoutService: LayoutService,
@@ -116,28 +137,6 @@ export class AppLayout {
             document.body.className = document.body.className.replace(new RegExp('(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
     }
-
-    containerClass = computed(() => {
-        const layoutConfig = this.layoutService.layoutConfig();
-        const layoutState = this.layoutService.layoutState();
-
-        return {
-            'layout-overlay': layoutConfig.menuMode === 'overlay',
-            'layout-static': layoutConfig.menuMode === 'static',
-            'layout-slim': layoutConfig.menuMode === 'slim',
-            'layout-horizontal': layoutConfig.menuMode === 'horizontal',
-            'layout-compact': layoutConfig.menuMode === 'compact',
-            'layout-reveal': layoutConfig.menuMode === 'reveal',
-            'layout-drawer': layoutConfig.menuMode === 'drawer',
-            'layout-overlay-active': layoutState.overlayMenuActive || layoutState.staticMenuMobileActive,
-            'layout-mobile-active': layoutState.staticMenuMobileActive,
-            'layout-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-            'layout-sidebar-active': layoutState.sidebarActive,
-            'layout-sidebar-anchored': layoutState.anchored,
-            [`layout-card-${layoutConfig.cardStyle}`]: true,
-            [`layout-sidebar-${layoutConfig.menuTheme}`]: true
-        };
-    });
 
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {

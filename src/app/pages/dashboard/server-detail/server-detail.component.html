@@ -1,13 +1,13 @@
-<div class="flex flex-col gap-6" *ngIf="server">
+<div *ngIf="server" class="flex flex-col gap-6">
     <!-- En-tête avec informations principales -->
     <div class="flex flex-wrap gap-4 justify-between items-start">
         <div class="flex items-center gap-4">
             <div class="flex flex-col items-center">
                 <p-avatar
                     [label]="server.minigame.charAt(0)"
-                    styleClass="!w-16 !h-16 !text-2xl font-medium"
                     [style]="{ backgroundColor: 'var(--p-' + server.color + '-100)', color: 'var(--p-' + server.color + '-950)' }"
                     shape="circle"
+                    styleClass="!w-16 !h-16 !text-2xl font-medium"
                 />
             </div>
             <div>
@@ -16,10 +16,12 @@
                     {{ server.minigame }} &bull; {{ server.map }}
                 </p>
                 <div class="mt-2 flex flex-row items-center">
-                    <span class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md mr-2">
+                    <span
+                        class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md mr-2">
                         <i class="pi pi-clock mr-1"></i> Uptime: {{ getUptime(server.startedAt) }}
                     </span>
-                    <span class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md">
+                    <span
+                        class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md">
                         <i class="pi pi-users mr-1"></i> {{ server.players.current }}/{{ server.players.max }} joueurs
                     </span>
                     <p-tag
@@ -33,10 +35,10 @@
 
         <div class="flex gap-2">
             <p-button
-                label="Arrêter"
-                icon="pi pi-power-off"
-                severity="danger"
                 (onClick)="stopServer()"
+                icon="pi pi-power-off"
+                label="Arrêter"
+                severity="danger"
             ></p-button>
         </div>
     </div>
@@ -48,23 +50,25 @@
                 <div class="flex justify-between items-center mb-3">
                     <div>
                         <h3 class="text-lg font-medium m-0">RAM Usage</h3>
-                        <div class="text-3xl font-semibold mt-1">{{ (server.resources.ram.usage * 100).toFixed(1) }}%</div>
+                        <div class="text-3xl font-semibold mt-1">{{ (server.resources.ram.usage * 100).toFixed(1) }}%
+                        </div>
                     </div>
                     <p-dropdown
-                        [options]="timeRanges"
                         [(ngModel)]="selectedTimeRange"
+                        [options]="timeRanges"
                         optionLabel="name"
                         styleClass="w-36"
                     ></p-dropdown>
                 </div>
                 <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
-                    {{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }} GB / {{ server.resources.ram.total }} GB
+                    {{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }} GB
+                    / {{ server.resources.ram.total }} GB
                 </div>
                 <p-progressBar
-                    [value]="server.resources.ram.usage * 100"
                     [showValue]="false"
-                    [style]="{'height': '8px'}"
                     [styleClass]="'!rounded-full ' + getRamStatusClass(server.resources.ram.usage)"
+                    [style]="{'height': '8px'}"
+                    [value]="server.resources.ram.usage * 100"
                     class="mb-4"
                 />
             </div>
@@ -82,10 +86,10 @@
                     Charge système actuelle
                 </div>
                 <p-progressBar
-                    [value]="server.resources.cpu.usage"
                     [showValue]="false"
-                    [style]="{'height': '8px'}"
                     [styleClass]="'!rounded-full ' + getCpuStatusClass(server.resources.cpu.usage)"
+                    [style]="{'height': '8px'}"
+                    [value]="server.resources.cpu.usage"
                     class="mb-4"
                 />
             </div>
@@ -110,10 +114,10 @@
                     TPS Optimal: 20.0
                 </div>
                 <p-progressBar
-                    [value]="(server.tps / 20) * 100"
                     [showValue]="false"
-                    [style]="{'height': '8px'}"
                     [styleClass]="'!rounded-full ' + getTpsSeverity(server.tps) + '-progress'"
+                    [style]="{'height': '8px'}"
+                    [value]="(server.tps / 20) * 100"
                     class="mb-4"
                 />
             </div>
@@ -127,40 +131,41 @@
                 <h3 class="text-lg font-medium m-0">Logs</h3>
                 <div class="flex gap-2 items-center">
                     <p-dropdown
-                        [options]="logLevels"
-                        [(ngModel)]="selectedLogLevel"
                         (onChange)="filterLogs()"
-                        placeholder="Tous les niveaux"
+                        [(ngModel)]="selectedLogLevel"
+                        [options]="logLevels"
                         optionLabel="label"
                         optionValue="value"
+                        placeholder="Tous les niveaux"
                         styleClass="w-48"
                     ></p-dropdown>
                     <p-icon-field>
                         <p-inputicon class="pi pi-search"/>
                         <input
-                            pInputText
-                            [(ngModel)]="logFilter"
                             (input)="filterLogs()"
+                            [(ngModel)]="logFilter"
                             class="!rounded-lg !py-1.5"
+                            pInputText
                             placeholder="Rechercher..."
                         />
                     </p-icon-field>
                     <p-button
-                        icon="pi pi-arrows-alt"
-                        severity="secondary"
-                        pTooltip="Plein écran"
                         (onClick)="toggleFullscreenLogs()"
+                        icon="pi pi-arrows-alt"
+                        pTooltip="Plein écran"
+                        severity="secondary"
                     ></p-button>
                 </div>
             </div>
         </ng-template>
-        <div [class]="logsFullscreen ? 'fixed inset-0 z-50 p-4 bg-surface-800' : ''" class="transition-all duration-300">
+        <div [class]="logsFullscreen ? 'fixed inset-0 z-50 p-4 bg-surface-800' : ''"
+             class="transition-all duration-300">
             <div *ngIf="logsFullscreen" class="absolute top-4 right-4">
                 <p-button
-                    icon="pi pi-times"
-                    severity="secondary"
-                    pTooltip="Fermer"
                     (onClick)="toggleFullscreenLogs()"
+                    icon="pi pi-times"
+                    pTooltip="Fermer"
+                    severity="secondary"
                 ></p-button>
             </div>
             <!-- Container principal avec position relative pour positionner le bouton -->
@@ -168,9 +173,9 @@
                 <!-- Logs Container -->
                 <div
                     #logsContainer
+                    (scroll)="onLogsScroll()"
                     [class]="logsFullscreen ? 'h-full' : 'h-[90vh]'"
                     class="w-full p-3 bg-surface-900 text-surface-0 font-mono text-sm overflow-auto rounded-md relative"
-                    (scroll)="onLogsScroll()"
                 >
                     <div *ngFor="let line of filteredLogs" class="whitespace-pre-wrap mb-1">
                         <ng-container [ngSwitch]="getLogLevel(line)">
@@ -191,10 +196,10 @@
                     class="absolute bottom-0 right-8 animate-bounce scroll-button-container"
                 >
                     <p-button
+                        (onClick)="scrollToBottom(true)"
                         icon="pi pi-arrow-down"
                         severity="info"
                         styleClass="p-button-rounded p-button-sm"
-                        (onClick)="scrollToBottom(true)"
                     ></p-button>
                 </div>
             </div>
@@ -205,20 +210,20 @@
                     <p-icon-field class="flex-1">
                         <p-inputicon class="pi pi-align-justify"/>
                         <input
-                            pInputText
-                            [(ngModel)]="rconCommand"
                             (keyup.enter)="executeCommand()"
+                            [(ngModel)]="rconCommand"
                             [disabled]="commandExecuting"
                             class="!rounded-lg !py-1.5 w-full"
+                            pInputText
                             placeholder="Entrez une commande RCON..."
                         />
                     </p-icon-field>
                     <p-button
-                        label="Exécuter"
-                        icon="pi pi-send"
-                        [loading]="commandExecuting"
-                        [disabled]="!rconCommand"
                         (onClick)="executeCommand()"
+                        [disabled]="!rconCommand"
+                        [loading]="commandExecuting"
+                        icon="pi pi-send"
+                        label="Exécuter"
                     ></p-button>
                 </div>
             </div>
@@ -229,32 +234,33 @@
     <p-card>
         <ng-template pTemplate="header">
             <div class="flex justify-between items-center p-3">
-                <h3 class="text-lg font-medium m-0">Joueurs connectés ({{server.players.current}})</h3>
+                <h3 class="text-lg font-medium m-0">Joueurs connectés ({{ server.players.current }})</h3>
             </div>
         </ng-template>
-        <div *ngIf="server.players.current > 0; else noPlayers" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-2">
+        <div *ngIf="server.players.current > 0; else noPlayers"
+             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-2">
             <div *ngFor="let player of server.players.list"
-                 class="flex flex-col items-center rounded-lg p-3 hover:shadow-md transition-all duration-200"
-                 [ngClass]="{'bg-surface-100 dark:bg-surface-800': !getPlayerClass(player), 'bg-green-50 dark:bg-green-900 player-joined': getPlayerClass(player) === 'joined'}">
+                 [ngClass]="{'bg-surface-100 dark:bg-surface-800': !getPlayerClass(player), 'bg-green-50 dark:bg-green-900 player-joined': getPlayerClass(player) === 'joined'}"
+                 class="flex flex-col items-center rounded-lg p-3 hover:shadow-md transition-all duration-200">
                 <div class="relative mb-2">
                     <img
-                        [src]="'https://mc-heads.net/avatar/' + player"
                         [alt]="player"
-                        width="64"
-                        height="64"
+                        [src]="'https://mc-heads.net/avatar/' + player"
                         class="rounded-md"
+                        height="64"
+                        width="64"
                     />
                 </div>
                 <div class="text-center mb-1">
-                    <div class="font-medium truncate w-24" [pTooltip]="player">{{ player }}</div>
+                    <div [pTooltip]="player" class="font-medium truncate w-24">{{ player }}</div>
                 </div>
                 <div class="flex gap-2 mt-auto">
                     <p-button
+                        (onClick)="executePlayerCommand('kick ' + player)"
                         icon="pi pi-user-minus"
+                        pTooltip="Expulser"
                         severity="warn"
                         size="small"
-                        pTooltip="Expulser"
-                        (onClick)="executePlayerCommand('kick ' + player)"
                     ></p-button>
                 </div>
             </div>

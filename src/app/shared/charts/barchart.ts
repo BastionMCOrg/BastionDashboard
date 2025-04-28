@@ -25,36 +25,19 @@ import {sampleDataByFixedLength} from '../../core/utils/utils';
     `
 })
 export class BarChart {
-    @HostBinding('class') get styleClass() {
-        return this.class();
-    }
-
     layoutService = inject(LayoutService);
-
     class = input<string>('');
-
     labels = input<string[]>(['']);
-
     datasets = input<any[]>([]);
-
     show = input<number>(12);
-
     tooltipPrefix = input<string>('$');
-
     option = input<string>('month');
-
     bgColors = input<string[]>();
-
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
-
     data: any;
-
     plugins = [];
-
     chartData: any;
-
     chartOptions: any;
-
     chartColors: any;
 
     constructor() {
@@ -67,6 +50,10 @@ export class BarChart {
             this.datasets();
             this.drawChart();
         });
+    }
+
+    @HostBinding('class') get styleClass() {
+        return this.class();
     }
 
     ngOnInit() {
@@ -120,20 +107,20 @@ export class BarChart {
                         index !== lineCount - 1
                             ? 0
                             : {
-                                  topLeft: 8,
-                                  topRight: 8,
-                                  bottomLeft: 0,
-                                  bottomRight: 0
-                              }
+                                topLeft: 8,
+                                topRight: 8,
+                                bottomLeft: 0,
+                                bottomRight: 0
+                            }
                 };
             });
         //@ts-ignore
-        sampledData.forEach(({ x, y }) => {
+        sampledData.forEach(({x, y}) => {
             Array(lineCount)
                 .fill(null)
                 .forEach((_, i) => {
                     let a = [];
-                    a.push({ x, y: y[i] });
+                    a.push({x, y: y[i]});
                     dataArr[i].data = [...dataArr[i].data, ...a];
                 });
         });
@@ -153,15 +140,15 @@ export class BarChart {
     getIntervalFromOption(option: string) {
         switch (option) {
             case 'week':
-                return { weeks: 1 };
+                return {weeks: 1};
             case 'month':
-                return { months: 1 };
+                return {months: 1};
             case 'quarter':
-                return { months: 3 };
+                return {months: 3};
             case 'year':
-                return { years: 1 };
+                return {years: 1};
             default:
-                return { days: 1 };
+                return {days: 1};
         }
     }
 
@@ -193,7 +180,7 @@ export class BarChart {
                     enabled: false,
                     position: 'nearest',
                     external: function (context: any) {
-                        const { chart, tooltip } = context;
+                        const {chart, tooltip} = context;
                         let tooltipEl = chart.canvas.parentNode.querySelector('div.chartjs-tooltip');
                         if (!tooltipEl) {
                             tooltipEl = document.createElement('div');
@@ -251,7 +238,7 @@ export class BarChart {
                             tooltipEl.appendChild(tooltipBody);
                         }
 
-                        const { offsetLeft: positionX } = chart.canvas;
+                        const {offsetLeft: positionX} = chart.canvas;
 
                         tooltipEl.style.opacity = 1;
                         tooltipEl.style.font = tooltip.options.bodyFont.string;

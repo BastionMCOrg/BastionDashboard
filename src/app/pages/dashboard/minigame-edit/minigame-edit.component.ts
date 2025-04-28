@@ -1,18 +1,18 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { DividerModule } from 'primeng/divider';
-import { MessagesModule } from 'primeng/messages';
-import { MessageModule } from 'primeng/message';
-import { TextareaModule } from 'primeng/textarea';
-import { CheckboxModule } from 'primeng/checkbox';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {DropdownModule} from 'primeng/dropdown';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {DividerModule} from 'primeng/divider';
+import {MessagesModule} from 'primeng/messages';
+import {MessageModule} from 'primeng/message';
+import {TextareaModule} from 'primeng/textarea';
+import {CheckboxModule} from 'primeng/checkbox';
 
 enum ServerType {
     MINIGAME = 'MINIGAME',
@@ -53,12 +53,23 @@ export class MinigameEditComponent implements OnInit, OnChanges {
     public formSubmitting: boolean = false;
 
     public serverTypeOptions = [
-        { label: 'Mini-jeu', value: ServerType.MINIGAME },
-        { label: 'Lobby', value: ServerType.LOBBY },
-        { label: 'Proxy', value: ServerType.PROXY }
+        {label: 'Mini-jeu', value: ServerType.MINIGAME},
+        {label: 'Lobby', value: ServerType.LOBBY},
+        {label: 'Proxy', value: ServerType.PROXY}
     ];
 
-    constructor(private fb: FormBuilder) {}
+    constructor(private fb: FormBuilder) {
+    }
+
+    // Gestion des développeurs
+    public get developerNames(): FormArray {
+        return this.minigameForm.get('developerNames') as FormArray;
+    }
+
+    // Gestion des variables d'environnement
+    public get envVars(): FormArray {
+        return this.minigameForm.get('dockerSettings.env') as FormArray;
+    }
 
     public ngOnInit(): void {
         this.createForm();
@@ -72,6 +83,65 @@ export class MinigameEditComponent implements OnInit, OnChanges {
                 this.resetForm();
             }
         }
+    }
+
+    public addDeveloperName(): void {
+        this.developerNames.push(new FormControl(''));
+    }
+
+    public removeDeveloperName(index: number): void {
+        if (this.developerNames.length > 1) {
+            this.developerNames.removeAt(index);
+        }
+    }
+
+    public addEnvVar(): void {
+        this.envVars.push(this.fb.group({
+            key: [''],
+            value: ['']
+        }));
+    }
+
+    public removeEnvVar(index: number): void {
+        this.envVars.removeAt(index);
+    }
+
+    public onHide(): void {
+        this.visibleChange.emit(false);
+    }
+
+    public onSubmit(): void {
+        // Récupérer les valeurs du formulaire
+        const formValue = {...this.minigameForm.getRawValue()};
+
+        // Formatage pour l'API
+        formValue.key = formValue.name;
+        formValue.name = formValue.displayName;
+        delete formValue.displayName;
+
+        // Type de serveur
+        const serverTypeEnum = formValue.serverType;
+        formValue.serverType = {
+            isMinigame: serverTypeEnum === ServerType.MINIGAME,
+            isLobby: serverTypeEnum === ServerType.LOBBY,
+            isProxy: serverTypeEnum === ServerType.PROXY,
+            isPermanent: formValue.isPermanent
+        };
+        delete formValue.isPermanent;
+
+        // ID pour l'édition
+        if (!this.isCreateMode && this.minigame?._id) {
+            formValue._id = this.minigame._id;
+        }
+
+        // Émission de l'événement
+        this.saveMinigame.emit({
+            data: formValue,
+            isCreateMode: this.isCreateMode
+        });
+
+        // Fermeture du dialogue
+        this.visibleChange.emit(false);
     }
 
     private createForm(): void {
@@ -151,11 +221,6 @@ export class MinigameEditComponent implements OnInit, OnChanges {
             .trim();
     }
 
-    // Gestion des développeurs
-    public get developerNames(): FormArray {
-        return this.minigameForm.get('developerNames') as FormArray;
-    }
-
     private initDeveloperNames(): void {
         // Vider le tableau
         while (this.developerNames.length > 0) {
@@ -174,21 +239,6 @@ export class MinigameEditComponent implements OnInit, OnChanges {
         });
     }
 
-    public addDeveloperName(): void {
-        this.developerNames.push(new FormControl(''));
-    }
-
-    public removeDeveloperName(index: number): void {
-        if (this.developerNames.length > 1) {
-            this.developerNames.removeAt(index);
-        }
-    }
-
-    // Gestion des variables d'environnement
-    public get envVars(): FormArray {
-        return this.minigameForm.get('dockerSettings.env') as FormArray;
-    }
-
     private initEnvVars(): void {
         // Vider le tableau
         while (this.envVars.length > 0) {
@@ -204,54 +254,5 @@ export class MinigameEditComponent implements OnInit, OnChanges {
                 value: [env.value]
             }));
         });
-    }
-
-    public addEnvVar(): void {
-        this.envVars.push(this.fb.group({
-            key: [''],
-            value: ['']
-        }));
-    }
-
-    public removeEnvVar(index: number): void {
-        this.envVars.removeAt(index);
-    }
-
-    public onHide(): void {
-        this.visibleChange.emit(false);
-    }
-
-    public onSubmit(): void {
-        // Récupérer les valeurs du formulaire
-        const formValue = {...this.minigameForm.getRawValue()};
-
-        // Formatage pour l'API
-        formValue.key = formValue.name;
-        formValue.name = formValue.displayName;
-        delete formValue.displayName;
-
-        // Type de serveur
-        const serverTypeEnum = formValue.serverType;
-        formValue.serverType = {
-            isMinigame: serverTypeEnum === ServerType.MINIGAME,
-            isLobby: serverTypeEnum === ServerType.LOBBY,
-            isProxy: serverTypeEnum === ServerType.PROXY,
-            isPermanent: formValue.isPermanent
-        };
-        delete formValue.isPermanent;
-
-        // ID pour l'édition
-        if (!this.isCreateMode && this.minigame?._id) {
-            formValue._id = this.minigame._id;
-        }
-
-        // Émission de l'événement
-        this.saveMinigame.emit({
-            data: formValue,
-            isCreateMode: this.isCreateMode
-        });
-
-        // Fermeture du dialogue
-        this.visibleChange.emit(false);
     }
 }

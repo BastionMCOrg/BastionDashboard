@@ -154,7 +154,7 @@ declare type SurfacesType = {
     `
 })
 export class AppConfigurator implements OnInit {
-    @Input({ transform: booleanAttribute }) simple: boolean = false;
+    @Input({transform: booleanAttribute}) simple: boolean = false;
 
     @Input() location: string = 'app';
 
@@ -171,34 +171,11 @@ export class AppConfigurator implements OnInit {
     presets = Object.keys(presets);
 
     themeOptions = [
-        { name: 'Light', value: false },
-        { name: 'Dark', value: true }
+        {name: 'Light', value: false},
+        {name: 'Dark', value: true}
     ];
 
     menuThemeOptions: { name: string; value: string }[] = [];
-
-    ngOnInit() {
-        if (isPlatformBrowser(this.platformId)) {
-            this.onPresetChange(this.layoutService.layoutConfig().preset);
-        }
-        this.updateMenuThemeOptions();
-    }
-
-    updateMenuThemeOptions() {
-        if (this.darkTheme()) {
-            this.menuThemeOptions = [
-                { name: 'Dark', value: 'dark' },
-                { name: 'Primary', value: 'primary' }
-            ];
-        } else {
-            this.menuThemeOptions = [
-                { name: 'Light', value: 'light' },
-                { name: 'Dark', value: 'dark' },
-                { name: 'Primary', value: 'primary' }
-            ];
-        }
-    }
-
     surfaces: SurfacesType[] = [
         {
             name: 'slate',
@@ -337,34 +314,24 @@ export class AppConfigurator implements OnInit {
             }
         }
     ];
-
     selectedPrimaryColor = computed(() => {
         return this.layoutService.layoutConfig().primary;
     });
-
     selectedSurfaceColor = computed(() => this.layoutService.layoutConfig().surface);
-
     selectedPreset = computed(() => this.layoutService.layoutConfig().preset);
-
     menuMode = model(this.layoutService.layoutConfig().menuMode);
-
     cardStyle = model(this.layoutService.layoutConfig().cardStyle);
-
     visible: Signal<boolean> = computed(() => this.layoutService.layoutState().configSidebarVisible);
-
     darkTheme = computed(() => this.layoutService.layoutConfig().darkTheme);
-
     selectedSurface = computed(() => this.layoutService.layoutConfig().surface);
-
     cardStyleOptions = [
-        { name: 'Transparent', value: 'transparent' },
-        { name: 'Filled', value: 'filled' }
+        {name: 'Transparent', value: 'transparent'},
+        {name: 'Filled', value: 'filled'}
     ];
-
     primaryColors = computed<SurfacesType[]>(() => {
         const presetPalette = presets[this.layoutService.layoutConfig().preset as KeyOfType<typeof presets>].primitive;
         const colors = ['emerald', 'green', 'lime', 'orange', 'amber', 'yellow', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'];
-        const palettes: SurfacesType[] = [{ name: 'noir', palette: {} }];
+        const palettes: SurfacesType[] = [{name: 'noir', palette: {}}];
 
         colors.forEach((color) => {
             palettes.push({
@@ -375,8 +342,29 @@ export class AppConfigurator implements OnInit {
 
         return palettes;
     });
-
     menuTheme = computed(() => this.layoutService.layoutConfig().menuTheme);
+
+    ngOnInit() {
+        if (isPlatformBrowser(this.platformId)) {
+            this.onPresetChange(this.layoutService.layoutConfig().preset);
+        }
+        this.updateMenuThemeOptions();
+    }
+
+    updateMenuThemeOptions() {
+        if (this.darkTheme()) {
+            this.menuThemeOptions = [
+                {name: 'Dark', value: 'dark'},
+                {name: 'Primary', value: 'primary'}
+            ];
+        } else {
+            this.menuThemeOptions = [
+                {name: 'Light', value: 'light'},
+                {name: 'Dark', value: 'dark'},
+                {name: 'Primary', value: 'primary'}
+            ];
+        }
+    }
 
     getPresetExt() {
         const color: SurfacesType = this.primaryColors().find((c) => c.name === this.selectedPrimaryColor()) || {};
@@ -500,7 +488,7 @@ export class AppConfigurator implements OnInit {
         }));
         const preset = presets[event as KeyOfType<typeof presets>];
         const surfacePalette = this.surfaces.find((s) => s.name === this.selectedSurfaceColor())?.palette;
-        $t().preset(preset).preset(this.getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
+        $t().preset(preset).preset(this.getPresetExt()).surfacePalette(surfacePalette).use({useDefaultOptions: true});
     }
 
     onDrawerHide() {
@@ -551,7 +539,7 @@ export class AppConfigurator implements OnInit {
     }
 
     toggleConfigSidebar() {
-        this.layoutService.layoutState.update((val) => ({ ...val, configSidebarVisible: !val.configSidebarVisible }));
+        this.layoutService.layoutState.update((val) => ({...val, configSidebarVisible: !val.configSidebarVisible}));
     }
 
     setMenuTheme(theme: string) {

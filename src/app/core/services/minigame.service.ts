@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { Minigame } from '../models/minigame.model';
-import { ServerInstance } from '../models/server-instance.model';
+import {Injectable} from '@angular/core';
+import {ApiService} from './api.service';
+import {Minigame} from '../models/minigame.model';
+import {ServerInstance} from '../models/server-instance.model';
 
 export interface PaginationParams {
     page: number;
@@ -23,7 +23,8 @@ export interface PaginatedResponse<T> {
 })
 export class MinigameService {
 
-    constructor(private apiService: ApiService) { }
+    constructor(private apiService: ApiService) {
+    }
 
     /**
      * Récupère la liste de tous les mini-jeux
@@ -192,7 +193,7 @@ export class MinigameService {
             );
         } catch (error) {
             console.error(`Erreur lors de la vérification de la santé de l'instance ${containerId}:`, error);
-            return { healthy: false, status: 'error' };
+            return {healthy: false, status: 'error'};
         }
     }
 
@@ -222,7 +223,7 @@ export class MinigameService {
      */
     public async executeRconCommand(serverId: string, command: string): Promise<any> {
         try {
-            const response = await this.apiService.post<any>(`/servers/${serverId}/rcon`, { command });
+            const response = await this.apiService.post<any>(`/servers/${serverId}/rcon`, {command});
             return response;
         } catch (error) {
             console.error(`Erreur lors de l'exécution de la commande RCON sur ${serverId}:`, error);

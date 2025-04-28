@@ -10,18 +10,16 @@
     display: flex;
     flex-direction: column;
     user-select: none;
-    transition:
-        margin 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99),
-        transform 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);
+    transition: margin 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99),
+    transform 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);
 
     .logo {
         text-align: center;
         display: flex;
         outline: 0 none;
         padding: 1rem 1rem;
-        transition:
-            background-color var(--transition-duration),
-            box-shadow var(--transition-duration);
+        transition: background-color var(--transition-duration),
+        box-shadow var(--transition-duration);
     }
 
     .logo-image {
@@ -44,7 +42,7 @@
     padding: 1rem;
 }
 
-.layout-content{
+.layout-content {
     .layout-breadcrumb {
         display: none;
     }
@@ -94,9 +92,8 @@
             border-radius: var(--border-radius);
             box-shadow: none !important;
             cursor: pointer;
-            transition:
-                background-color var(--transition-duration),
-                box-shadow var(--transition-duration);
+            transition: background-color var(--transition-duration),
+            box-shadow var(--transition-duration);
 
             .layout-menuitem-icon {
                 margin-right: 0.5rem;

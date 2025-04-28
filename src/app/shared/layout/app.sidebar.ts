@@ -6,10 +6,10 @@ import {CommonModule} from "@angular/common";
 import {AppTopbar} from './app.topbar';
 
 @Component({
-  selector: '[app-sidebar]',
-  standalone: true,
-  imports: [CommonModule, AppMenu, RouterModule, AppTopbar, AppTopbar],
-  template: `
+    selector: '[app-sidebar]',
+    standalone: true,
+    imports: [CommonModule, AppMenu, RouterModule, AppTopbar, AppTopbar],
+    template: `
     <div class="layout-sidebar" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
       <div class="sidebar-header">
         <a class="logo" [routerLink]="['/']">
@@ -28,61 +28,61 @@ import {AppTopbar} from './app.topbar';
     </div>`,
 })
 export class AppSidebar {
-  timeout: any = null;
+    timeout: any = null;
 
-  isHorizontal = computed(() => this.layoutService.isHorizontal());
+    isHorizontal = computed(() => this.layoutService.isHorizontal());
 
-  menuTheme = computed(() => this.layoutService.layoutConfig().menuTheme);
+    menuTheme = computed(() => this.layoutService.layoutConfig().menuTheme);
 
-  @ViewChild('menuContainer') menuContainer!: ElementRef;
+    @ViewChild('menuContainer') menuContainer!: ElementRef;
 
-  constructor(
-    public layoutService: LayoutService,
-    public el: ElementRef
-  ) {
-  }
-
-  onMouseEnter() {
-    if (!this.layoutService.layoutState().anchored) {
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-        this.timeout = null;
-      }
-
-      this.layoutService.layoutState.update((state) => {
-        if (!state.sidebarActive) {
-          return {
-            ...state,
-            sidebarActive: true
-          };
-        }
-        return state;
-      });
+    constructor(
+        public layoutService: LayoutService,
+        public el: ElementRef
+    ) {
     }
-  }
 
-  onMouseLeave() {
-    if (!this.layoutService.layoutState().anchored) {
-      if (!this.timeout) {
-        this.timeout = setTimeout(() => {
-          this.layoutService.layoutState.update((state) => {
-            if (state.sidebarActive) {
-              return {
-                ...state,
-                sidebarActive: false
-              };
+    onMouseEnter() {
+        if (!this.layoutService.layoutState().anchored) {
+            if (this.timeout) {
+                clearTimeout(this.timeout);
+                this.timeout = null;
             }
-            return state;
-          });
-        }, 300);
-      }
-    }
-  }
 
-  anchor() {
-    this.layoutService.layoutState.update((state) => ({
-      ...state,
-      anchored: !state.anchored
-    }));
-  }
+            this.layoutService.layoutState.update((state) => {
+                if (!state.sidebarActive) {
+                    return {
+                        ...state,
+                        sidebarActive: true
+                    };
+                }
+                return state;
+            });
+        }
+    }
+
+    onMouseLeave() {
+        if (!this.layoutService.layoutState().anchored) {
+            if (!this.timeout) {
+                this.timeout = setTimeout(() => {
+                    this.layoutService.layoutState.update((state) => {
+                        if (state.sidebarActive) {
+                            return {
+                                ...state,
+                                sidebarActive: false
+                            };
+                        }
+                        return state;
+                    });
+                }, 300);
+            }
+        }
+    }
+
+    anchor() {
+        this.layoutService.layoutState.update((state) => ({
+            ...state,
+            anchored: !state.anchored
+        }));
+    }
 }

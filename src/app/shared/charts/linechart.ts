@@ -15,36 +15,19 @@ import {sampleDataReduction} from '../../core/utils/utils';
     }
 })
 export class LineChart {
-    @HostBinding('class') get styleClass() {
-        return this.class();
-    }
-
     layoutService = inject(LayoutService);
-
     class = input<string>('');
-
     labels = input<string[]>([]);
-
     datasets = input<any[]>([]);
-
     bgColor = input<any[] | undefined | null>();
-
     borderColor = input<string | undefined | null>();
-
     show = input<number>(6);
-
     tooltipPrefix = input<string>('');
-
     option = input<string | undefined>('month');
-
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
-
     data: any;
-
     plugins: any;
-
     chartData: any;
-
     chartOptions: any;
 
     constructor() {
@@ -57,6 +40,10 @@ export class LineChart {
             this.option();
             this.drawChart();
         });
+    }
+
+    @HostBinding('class') get styleClass() {
+        return this.class();
     }
 
     drawChart() {
@@ -77,8 +64,8 @@ export class LineChart {
                 const {
                     ctx,
                     tooltip,
-                    chartArea: { bottom },
-                    scales: { x, y }
+                    chartArea: {bottom},
+                    scales: {x, y}
                 } = chart;
                 if (tooltip._active.length > 0) {
                     const xCoor = x.getPixelForValue(tooltip.dataPoints[0].raw.x);
@@ -134,7 +121,7 @@ export class LineChart {
 
                         const {
                             ctx,
-                            chartArea: { top, bottom }
+                            chartArea: {top, bottom}
                         } = context.chart;
                         const gradientBg = ctx.createLinearGradient(0, top, 0, bottom);
                         const colorTranches = 1 / (bg.length - 1);
@@ -174,7 +161,7 @@ export class LineChart {
                     enabled: false,
                     position: 'nearest',
                     external: function (context: any) {
-                        const { chart, tooltip } = context;
+                        const {chart, tooltip} = context;
                         let tooltipEl = chart.canvas.parentNode.querySelector('div.chartjs-tooltip');
                         if (!tooltipEl) {
                             tooltipEl = document.createElement('div');
@@ -226,7 +213,7 @@ export class LineChart {
                             });
                         }
 
-                        const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas;
+                        const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
 
                         tooltipEl.style.opacity = 1;
                         tooltipEl.style.left = positionX + tooltip.caretX + 'px';

@@ -1,11 +1,12 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
+import {Injectable} from '@angular/core';
+import {ApiService} from './api.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class RconService {
-    constructor(private apiService: ApiService) { }
+    constructor(private apiService: ApiService) {
+    }
 
     public async executeCommand(
         gameType: string,
@@ -14,7 +15,7 @@ export class RconService {
     ): Promise<{ success: boolean; result?: string; error?: string }> {
         const response = await this.apiService.post<any>(
             `/rcon/${gameType}/${serverId}/command`,
-            { command }
+            {command}
         );
         return response.data;
     }
@@ -114,7 +115,7 @@ export class RconService {
     ): Promise<{ success: boolean; tps?: number[]; error?: string }> {
         const res = await this.executeCommand(gameType, serverId, 'tps');
         if (!res.success) {
-            return { success: false, error: res.error };
+            return {success: false, error: res.error};
         }
 
         const matches = res.result?.match(/(\d+\.\d+)(?=,|\s*$)/g) || [];
