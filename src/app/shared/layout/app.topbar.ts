@@ -1,4 +1,4 @@
-import {Component, computed, ElementRef, inject, model, signal, ViewChild} from '@angular/core';
+import {Component, computed, ElementRef, inject, model, OnInit, signal, ViewChild} from '@angular/core';
 import {RouterModule} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {StyleClassModule} from 'primeng/styleclass';
@@ -12,6 +12,7 @@ import {RippleModule} from 'primeng/ripple';
 import {BadgeModule} from 'primeng/badge';
 import {OverlayBadgeModule} from 'primeng/overlaybadge';
 import {AvatarModule} from 'primeng/avatar';
+import {AuthService} from '../../core/services/auth.service';
 
 interface NotificationsBars {
     id: string;
@@ -36,19 +37,14 @@ interface NotificationsBars {
 
         <div class="topbar-right">
             <ul class="topbar-menu">
-                <li class="right-sidebar-item">
-                    <a class="right-sidebar-button" (click)="toggleSearchBar()">
-                        <i class="pi pi-search"></i>
-                    </a>
-                </li>
-                <li class="right-sidebar-item">
+                <li class="right-sidebar-item hover:bg-[var(--d-menuitem-text-color)]">
                     <button class="app-config-button" (click)="onConfigButtonClick()"><i class="pi pi-cog"></i></button>
                 </li>
 
                 <li class="profile-item static sm:relative">
                     <a class="right-sidebar-button relative z-50" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveActiveClass="animate-fadeout" leaveToClass="hidden" [hideOnOutsideClick]="true">
                         <p-avatar styleClass="!w-10 !h-10">
-                            <img src="https://mc-heads.net/avatar/RealDragonMA" />
+                            <img [src]="'https://mc-heads.net/avatar/'+username" />
                         </p-avatar>
                     </a>
                     <div
@@ -92,10 +88,22 @@ interface NotificationsBars {
         </div>
     </div>`
 })
-export class AppTopbar {
+export class AppTopbar implements OnInit{
     layoutService = inject(LayoutService);
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
+
+    protected username: string = "Steve";
+
+    constructor(private authService: AuthService) {
+    }
+
+    public async ngOnInit(): Promise<void> {
+        const currentUser = this.authService.currentUserValue;
+        if(currentUser){
+            this.username = currentUser.username;
+        }
+    }
 
     @ViewChild('menubutton') menuButton!: ElementRef;
 

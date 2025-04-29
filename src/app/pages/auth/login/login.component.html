@@ -1,0 +1,50 @@
+<section class="min-h-screen flex items-center justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto">
+    <div class="flex w-full h-full justify-center gap-12">
+        <div class="flex flex-col py-20 lg:min-w-[30rem]">
+            <a routerLink="/" class="flex items-center justify-center lg:justify-start mb-8 space-x-2">
+                <img class="w-10 h-10" src="/assets/images/crafting-table.png" alt="Logo" />
+                <p>BastionMC</p>
+            </a>
+            <div class="flex flex-col justify-center flex-grow">
+                <div class="max-w-md mx-auto w-full">
+                    <h5 class="title-h5 text-center lg:text-left">Connexion</h5>
+                    <p class="body-small mt-3.5 text-center lg:text-left">Entrez vos informations</p>
+                    <div class="flex items-center gap-3.5 my-7">
+                        <span class="flex-1 h-[1px] bg-surface-200 dark:bg-surface-800"></span>
+                    </div>
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                        <input type="text" formControlName="username" pInputText class="w-full" placeholder="Nom d'utilisateur" required />
+                        <small *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="text-red-500">
+                            Nom d'utilisateur requis
+                        </small>
+
+                        <input type="password" formControlName="password" pInputText class="w-full mt-4" placeholder="Mot de passe" required />
+                        <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500">
+                            Mot de passe requis
+                        </small>
+
+                        <div class="my-8 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <p-checkbox inputId="remember" formControlName="remember" [binary]="true" />
+                                <label for="remember" class="body-small">Se souvenir de moi</label>
+                            </div>
+                            <a routerLink="/auth/forgot-password" class="body-small text-primary-500 hover:underline">Mot de passe oublié ?</a>
+                        </div>
+                        <button type="submit" class="body-button w-full" [disabled]="loading">
+                            <span *ngIf="!loading">Se connecter</span>
+                            <span *ngIf="loading">Connexion en cours...</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-8 text-center lg:text-start block relative text-surface-400 dark:text-surface-500 text-sm">©{{ currentYear }} BastionMC</div>
+        </div>
+        <div class="hidden lg:flex h-[50vh] py-20">
+            <div class="h-full w-full lg:max-w-[32.5rem] xl:max-w-[60.5rem] mx-auto flex items-center justify-center shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] rounded-3xl overflow-hidden">
+                <img class="w-auto h-full object-contain object-left" src="/assets/images/goat.png" alt="Goat" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<p-toast></p-toast>
