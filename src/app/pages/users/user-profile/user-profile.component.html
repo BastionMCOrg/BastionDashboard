@@ -1,0 +1,147 @@
+<div class="card">
+    <div class="flex lg:flex-row flex-col lg:items-center justify-between mb-4 w-full gap-3">
+        <div class="flex-1">
+            <div class="label-medium">Mon profil</div>
+            <span class="mt-1 body-xsmall">Gérez vos informations personnelles</span>
+        </div>
+        <div>
+            <p-button (onClick)="loadUserProfile()" [loading]="loading" icon="pi pi-refresh" severity="secondary"></p-button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="flex justify-center items-center py-8">
+        <p-progressSpinner animationDuration=".5s" fill="var(--surface-ground)" strokeWidth="4" styleClass="w-12 h-12"/>
+    </div>
+
+    <div *ngIf="!loading && currentUser" class="grid">
+        <!-- Informations utilisateur -->
+        <div class="col-12 md:col-4">
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div class="p-4 flex items-center">
+                        <p-avatar
+                            [label]="getInitials(currentUser.username)"
+                            shape="circle"
+                            styleClass="mr-3 !w-14 !h-14 !text-xl font-medium"
+                            [style]="{ backgroundColor: 'var(--p-blue-100)', color: 'var(--p-blue-950)' }"
+                        ></p-avatar>
+                        <div>
+                            <h3 class="text-xl font-semibold m-0">{{ currentUser.username }}</h3>
+                            <p class="text-sm text-surface-500 mt-1 mb-0">
+                                Dernière connexion: {{ currentUser.lastLogin ? (currentUser.lastLogin | date:'dd/MM/yyyy HH:mm') : 'Jamais' }}
+                            </p>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <div class="mb-4">
+                    <h4 class="text-lg font-medium mb-2">Permissions</h4>
+                    <div class="flex flex-wrap gap-1">
+                        <p-tag *ngFor="let permission of currentUser.permissions"
+                               [severity]="getPermissionSeverity(permission)"
+                               [value]="getPermissionLabel(permission)"
+                               [pTooltip]="getPermissionDescription(permission)"
+                               tooltipPosition="top">
+                        </p-tag>
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <h4 class="text-lg font-medium mb-2">Compte créé le</h4>
+                    <p>{{ Date() | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </p-card>
+        </div>
+
+        <!-- Formulaires de modification -->
+        <div class="col-12 md:col-8">
+            <p-card header="Modifier mon nom d'utilisateur">
+                <form [formGroup]="usernameForm" (ngSubmit)="updateUsername()">
+                    <div class="field mb-4">
+                        <label for="username">Nouveau nom d'utilisateur</label>
+                        <div class="p-inputgroup">
+                            <input id="username" type="text" pInputText formControlName="username" placeholder="Nouveau nom d'utilisateur">
+                            <button
+                                pButton
+                                type="submit"
+                                label="Modifier"
+                                [disabled]="usernameForm.invalid || updatingUsername"
+                                [loading]="updatingUsername"
+                            ></button>
+                        </div>
+                        <small *ngIf="usernameForm.get('username')?.invalid && usernameForm.get('username')?.touched" class="p-error">
+                            Le nom d'utilisateur est requis
+                        </small>
+                    </div>
+                </form>
+            </p-card>
+
+            <p-card header="Modifier mon mot de passe" styleClass="mt-4">
+                <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+                    <div class="field mb-4">
+                        <label for="currentPassword">Mot de passe actuel</label>
+                        <p-password
+                            id="currentPassword"
+                            formControlName="currentPassword"
+                            [toggleMask]="true"
+                            [feedback]="false"
+                            placeholder="Mot de passe actuel"
+                            styleClass="w-full"
+                        ></p-password>
+                        <small *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched" class="p-error">
+                            Le mot de passe actuel est requis
+                        </small>
+                    </div>
+                    <div class="field mb-4">
+                        <label for="newPassword">Nouveau mot de passe</label>
+                        <p-password
+                            id="newPassword"
+                            formControlName="newPassword"
+                            [toggleMask]="true"
+                            [feedback]="true"
+                            placeholder="Nouveau mot de passe"
+                            styleClass="w-full"
+                        >
+                            <ng-template pTemplate="footer">
+                                <p-divider></p-divider>
+                                <p class="mt-2">Le mot de passe doit contenir au moins 6 caractères</p>
+                            </ng-template>
+                        </p-password>
+                        <small *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched" class="p-error">
+                            Le mot de passe doit contenir au moins 6 caractères
+                        </small>
+                    </div>
+                    <div class="field mb-4">
+                        <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                        <p-password
+                            id="confirmPassword"
+                            formControlName="confirmPassword"
+                            [toggleMask]="true"
+                            [feedback]="false"
+                            placeholder="Confirmer le nouveau mot de passe"
+                            styleClass="w-full"
+                        ></p-password>
+                        <small *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched" class="p-error">
+                            La confirmation du mot de passe est requise
+                        </small>
+                        <small *ngIf="passwordForm.hasError('passwordMismatch') &&
+                              passwordForm.get('confirmPassword')?.touched" class="p-error">
+                            Les mots de passe ne correspondent pas
+                        </small>
+                    </div>
+                    <div class="flex justify-end">
+                        <button
+                            pButton
+                            type="submit"
+                            label="Modifier le mot de passe"
+                            [disabled]="passwordForm.invalid || updatingPassword"
+                            [loading]="updatingPassword"
+                        ></button>
+                    </div>
+                </form>
+            </p-card>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

@@ -1,6 +1,9 @@
 import {computed, effect, Injectable, signal} from '@angular/core';
 import {Subject} from 'rxjs';
 
+// Clé de stockage dans le localStorage
+const LAYOUT_CONFIG_KEY = 'bastionmc-layout-config';
+
 export interface layoutConfig {
     preset: string;
     primary: string;
@@ -84,10 +87,18 @@ export class LayoutService {
     private initialized = false;
 
     constructor() {
+        // Charger la configuration à partir du localStorage au démarrage
+        this.loadConfigFromStorage();
+
         effect(() => {
             const config = this.layoutConfig();
             if (config) {
                 this.onConfigUpdate();
+
+                // Sauvegarder la configuration dans le localStorage à chaque changement
+                if (this.initialized) {
+                    this.saveConfigToStorage();
+                }
             }
         });
 
@@ -105,6 +116,44 @@ export class LayoutService {
         effect(() => {
             this.isSidebarStateChanged() && this.reset();
         });
+    }
+
+    /**
+     * Sauvegarde la configuration dans le localStorage
+     */
+    private saveConfigToStorage(): void {
+        if (typeof window !== 'undefined' && window.localStorage) {
+            const configToSave = this.layoutConfig();
+            localStorage.setItem(LAYOUT_CONFIG_KEY, JSON.stringify(configToSave));
+        }
+    }
+
+    /**
+     * Charge la configuration depuis le localStorage
+     */
+    private loadConfigFromStorage(): void {
+        if (typeof window !== 'undefined' && window.localStorage) {
+            const storedConfig = localStorage.getItem(LAYOUT_CONFIG_KEY);
+
+            if (storedConfig) {
+                try {
+                    const parsedConfig = JSON.parse(storedConfig);
+                    this._config = { ...this._config, ...parsedConfig };
+                    this.layoutConfig.set(this._config);
+
+                    // Appliquer immédiatement le thème sombre si nécessaire
+                    if (this._config.darkTheme) {
+                        document.documentElement.classList.add('app-dark');
+                    } else {
+                        document.documentElement.classList.remove('app-dark');
+                    }
+                } catch (e) {
+                    console.error('Erreur lors du chargement de la configuration:', e);
+                }
+            }
+        }
+
+        this.initialized = true;
     }
 
     toggleDarkMode(config?: layoutConfig): void {

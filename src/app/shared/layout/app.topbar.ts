@@ -37,7 +37,7 @@ interface NotificationsBars {
 
         <div class="topbar-right">
             <ul class="topbar-menu">
-                <li class="right-sidebar-item hover:bg-[var(--d-menuitem-text-color)]">
+                <li class="right-sidebar-item">
                     <button class="app-config-button" (click)="onConfigButtonClick()"><i class="pi pi-cog"></i></button>
                 </li>
 

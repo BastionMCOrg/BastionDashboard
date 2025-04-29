@@ -3,8 +3,9 @@ import { AppLayout } from './shared/layout/app.layout';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ServerDetailComponent } from './pages/dashboard/server-detail/server-detail.component';
 import { AuthGuard } from './core/guards/auth.guard';
-import {LoginComponent} from './pages/auth/login/login.component';
-
+import { LoginComponent } from './pages/auth/login/login.component';
+import { UsersAdminComponent } from './pages/users/users-admin/users-admin.component';
+import { UserProfileComponent } from './pages/users/user-profile/user-profile.component';
 
 export const routes: Routes = [
     // Route de login - accessible uniquement si non connecté
@@ -36,6 +37,21 @@ export const routes: Routes = [
                     breadcrumb: 'Serveur'
                 },
                 component: ServerDetailComponent,
+            },
+            {
+                path: 'users',
+                data: {
+                    breadcrumb: 'Gestion des utilisateurs',
+                    permissions: ['admin', 'manage_users'] // Protection par permission
+                },
+                component: UsersAdminComponent,
+            },
+            {
+                path: 'profile',
+                data: {
+                    breadcrumb: 'Mon profil'
+                },
+                component: UserProfileComponent,
             }
         ]
     },
