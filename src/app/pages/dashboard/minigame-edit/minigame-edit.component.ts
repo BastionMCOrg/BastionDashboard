@@ -13,6 +13,7 @@ import {MessagesModule} from 'primeng/messages';
 import {MessageModule} from 'primeng/message';
 import {TextareaModule} from 'primeng/textarea';
 import {CheckboxModule} from 'primeng/checkbox';
+import {Select} from 'primeng/select';
 
 enum ServerType {
     MINIGAME = 'MINIGAME',
@@ -39,7 +40,8 @@ enum ServerType {
         MessagesModule,
         MessageModule,
         TextareaModule,
-        CheckboxModule
+        CheckboxModule,
+        Select
     ]
 })
 export class MinigameEditComponent implements OnInit, OnChanges {

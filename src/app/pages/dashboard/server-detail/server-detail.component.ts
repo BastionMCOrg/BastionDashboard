@@ -26,6 +26,7 @@ import {
 } from '../../../core/utils/dashboard.utils';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
+import {Select} from 'primeng/select';
 
 @Component({
     selector: 'app-server-detail',
@@ -46,7 +47,8 @@ import {ToastModule} from 'primeng/toast';
         DropdownModule,
         IconFieldModule,
         InputIconModule,
-        ToastModule
+        ToastModule,
+        Select
     ],
     providers: [MessageService]
 })

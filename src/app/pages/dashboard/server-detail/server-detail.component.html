@@ -53,12 +53,12 @@
                         <div class="text-3xl font-semibold mt-1">{{ (server.resources.ram.usage * 100).toFixed(1) }}%
                         </div>
                     </div>
-                    <p-dropdown
+                    <p-select
                         [(ngModel)]="selectedTimeRange"
                         [options]="timeRanges"
                         optionLabel="name"
                         styleClass="w-36"
-                    ></p-dropdown>
+                    ></p-select>
                 </div>
                 <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
                     {{ (server.resources.ram.usage * server.resources.ram.total).toFixed(1) }} GB
@@ -130,7 +130,7 @@
             <div class="flex justify-between items-center p-3">
                 <h3 class="text-lg font-medium m-0">Logs</h3>
                 <div class="flex gap-2 items-center">
-                    <p-dropdown
+                    <p-select
                         (onChange)="filterLogs()"
                         [(ngModel)]="selectedLogLevel"
                         [options]="logLevels"
@@ -138,13 +138,12 @@
                         optionValue="value"
                         placeholder="Tous les niveaux"
                         styleClass="w-48"
-                    ></p-dropdown>
+                    ></p-select>
                     <p-icon-field>
                         <p-inputicon class="pi pi-search"/>
                         <input
                             (input)="filterLogs()"
                             [(ngModel)]="logFilter"
-                            class="!rounded-lg !py-1.5"
                             pInputText
                             placeholder="Rechercher..."
                         />
@@ -153,7 +152,7 @@
                         (onClick)="toggleFullscreenLogs()"
                         icon="pi pi-arrows-alt"
                         pTooltip="Plein écran"
-                        severity="secondary"
+                        severity="primary"
                     ></p-button>
                 </div>
             </div>
@@ -181,7 +180,7 @@
                         <ng-container [ngSwitch]="getLogLevel(line)">
                             <span *ngSwitchCase="'error'" class="text-red-500">[ERROR] {{ line }}</span>
                             <span *ngSwitchCase="'warn'" class="text-yellow-500">[WARN] {{ line }}</span>
-                            <span *ngSwitchCase="'info'" class="text-blue-500">[INFO] {{ line }}</span>
+                            <span *ngSwitchCase="'info'">[INFO] {{ line }}</span>
                             <span *ngSwitchDefault>{{ line }}</span>
                         </ng-container>
                     </div>
@@ -198,7 +197,7 @@
                     <p-button
                         (onClick)="scrollToBottom(true)"
                         icon="pi pi-arrow-down"
-                        severity="info"
+                        severity="primary"
                         styleClass="p-button-rounded p-button-sm"
                     ></p-button>
                 </div>
@@ -213,7 +212,7 @@
                             (keyup.enter)="executeCommand()"
                             [(ngModel)]="rconCommand"
                             [disabled]="commandExecuting"
-                            class="!rounded-lg !py-1.5 w-full"
+                            class="w-full"
                             pInputText
                             placeholder="Entrez une commande RCON..."
                         />
@@ -267,7 +266,7 @@
         </div>
         <ng-template #noPlayers>
             <div class="text-center py-6 text-surface-500 dark:text-surface-400">
-                <i class="pi pi-users text-3xl mb-2"></i>
+                <i class="pi pi-users mb-2" style="font-size: 2rem"></i>
                 <p>Aucun joueur connecté pour le moment.</p>
             </div>
         </ng-template>

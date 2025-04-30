@@ -17,11 +17,11 @@
             ></p-select>
             <p-icon-field>
                 <p-inputicon class="pi pi-search"/>
-                <input (keyup.enter)="onFilterChange()" [(ngModel)]="tableSearch" class="!rounded-lg !py-1.5 !w-56"
+                <input (keyup.enter)="onFilterChange()" [(ngModel)]="tableSearch" class="!w-56"
                        pInputText placeholder="Rechercher"/>
             </p-icon-field>
             <p-button (onClick)="loadServers()" [loading]="loading" icon="pi pi-refresh"
-                      severity="secondary"></p-button>
+                      severity="primary"></p-button>
             <p-button (onClick)="openQuickLaunchDialog()" icon="pi pi-play" label="Lancer"
                       severity="success"></p-button>
         </div>
