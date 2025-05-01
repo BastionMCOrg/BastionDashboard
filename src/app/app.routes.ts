@@ -6,6 +6,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { UsersAdminComponent } from './pages/users/users-admin/users-admin.component';
 import { UserProfileComponent } from './pages/users/user-profile/user-profile.component';
+import { ServiceDetailComponent } from './pages/services/service-detail/service-detail.component';
 
 export const routes: Routes = [
     // Route de login - accessible uniquement si non connecté
@@ -37,6 +38,14 @@ export const routes: Routes = [
                     breadcrumb: 'Serveur'
                 },
                 component: ServerDetailComponent,
+            },
+            {
+                path: 'services/:id',
+                data: {
+                    breadcrumb: 'Détail du service',
+                    permissions: ['admin', 'manage_servers'] // Protection par permission
+                },
+                component: ServiceDetailComponent,
             },
             {
                 path: 'users',

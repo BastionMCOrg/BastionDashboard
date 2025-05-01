@@ -1,0 +1,120 @@
+/* src/app/pages/services/service-detail/service-detail.component.scss */
+:host {
+    display: block;
+}
+
+:host ::ng-deep {
+    // Style des cartes
+    .p-card {
+        .p-card-body {
+            padding: 1.25rem;
+        }
+
+        .p-card-content {
+            padding: 0;
+        }
+    }
+
+    // Style des tags
+    .p-tag {
+        &.p-tag-success {
+            background-color: var(--p-green-100);
+            color: var(--p-green-800);
+        }
+
+        &.p-tag-warning {
+            background-color: var(--p-orange-100);
+            color: var(--p-orange-800);
+        }
+
+        &.p-tag-danger {
+            background-color: var(--p-red-100);
+            color: var(--p-red-800);
+        }
+
+        &.p-tag-info {
+            background-color: var(--p-blue-100);
+            color: var(--p-blue-800);
+        }
+    }
+
+    // Style des barres de progression
+    .p-progressbar {
+        &.bg-success .p-progressbar-value {
+            background-color: var(--p-green-500);
+        }
+
+        &.bg-warning .p-progressbar-value {
+            background-color: var(--p-orange-500);
+        }
+
+        &.bg-danger .p-progressbar-value {
+            background-color: var(--p-red-500);
+        }
+    }
+
+    // Style de l'input de recherche
+    .p-inputtext {
+        &:focus {
+            box-shadow: 0 0 0 2px var(--p-primary-200);
+        }
+    }
+
+    // Style pour le bouton scroll
+    .p-button-rounded.p-button-sm {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+
+        .p-button-icon {
+            font-size: 1.2rem;
+        }
+    }
+}
+
+// Style pour les sections de logs
+.logs-container {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    line-height: 1.6;
+
+    .log-entry {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--surface-200);
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &.error {
+            color: var(--p-red-600);
+        }
+
+        &.warning {
+            color: var(--p-orange-600);
+        }
+
+        &.info {
+            color: var(--p-blue-600);
+        }
+    }
+}
+
+// Animation pour le bouton scroll
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+// Style responsive
+@media screen and (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+}

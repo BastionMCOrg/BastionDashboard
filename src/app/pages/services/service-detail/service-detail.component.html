@@ -1,0 +1,253 @@
+<!-- src/app/pages/services/service-detail/service-detail.component.html -->
+<div *ngIf="loading" class="flex justify-center items-center py-8">
+    <p-progressSpinner animationDuration=".5s" fill="var(--surface-ground)" strokeWidth="4" styleClass="w-12 h-12"/>
+</div>
+
+<div *ngIf="!loading && service" class="flex flex-col gap-6">
+    <!-- Header with main information -->
+    <div class="flex flex-wrap gap-4 justify-between items-start">
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center">
+                <p-avatar
+                    [icon]="getServiceTypeIcon()"
+                    [style]="{ backgroundColor: 'var(--p-' + getServiceColor() + '-100)', color: 'var(--p-' + getServiceColor() + '-700)' }"
+                    shape="circle"
+                    styleClass="!w-16 !h-16 !text-xl"
+                />
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold mb-0">{{ service.name }}</h1>
+                <p class="text-sm text-surface-500 dark:text-surface-400 mt-1 mb-0">
+                    Type: {{ service.type }} &bull; ID: {{ service.id }}
+                </p>
+                <div class="mt-2 flex flex-row flex-wrap items-center gap-2">
+                    <p-tag
+                        [severity]="getStatusSeverity(service.state)"
+                        [value]="getStatusDisplay(service.state)"
+                        styleClass="!px-2 !py-1"
+                    ></p-tag>
+                    <span
+                        class="text-xs flex items-center justify-center w-fit bg-surface-200 dark:bg-surface-700 px-2 py-1 rounded-md">
+                        <i class="pi pi-clock mr-1"></i> Démarré le: {{ service.startedAt | date:'dd/MM/yyyy HH:mm' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-2">
+            <p-button
+                *ngIf="service.state === 'running'"
+                (onClick)="restartService()"
+                icon="pi pi-refresh"
+                label="Redémarrer"
+                severity="warn"
+            ></p-button>
+            <p-button
+                *ngIf="service.state === 'running'"
+                (onClick)="stopService()"
+                icon="pi pi-power-off"
+                label="Arrêter"
+                severity="danger"
+            ></p-button>
+            <p-button
+                *ngIf="service.state !== 'running'"
+                (onClick)="startService()"
+                icon="pi pi-play"
+                label="Démarrer"
+                severity="success"
+            ></p-button>
+        </div>
+    </div>
+
+    <!-- Service Information Card -->
+    <p-card header="Informations du service">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <h3 class="text-lg font-medium mt-0 mb-3">Détails</h3>
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between">
+                        <span class="text-surface-600">ID du conteneur:</span>
+                        <span class="font-mono text-sm">{{ service.containerId.substring(0, 12) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-surface-600">Image:</span>
+                        <span class="font-mono text-sm">{{ service.image }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-surface-600">Statut:</span>
+                        <span>{{ service.status }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-surface-600">Créé le:</span>
+                        <span>{{ service.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-medium mt-0 mb-3">Description</h3>
+                <p *ngIf="service.description">{{ service.description }}</p>
+                <p *ngIf="!service.description" class="text-surface-500">Aucune description disponible</p>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- Resource Usage Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <p-card styleClass="h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-lg font-medium m-0">Utilisation de la mémoire</h3>
+                        <div class="text-3xl font-semibold mt-1">{{ memoryPercentage.toFixed(1) }}%</div>
+                    </div>
+                    <div class="text-xs text-surface-500">
+                        Dernier rafraîchissement: {{ memoryUpdateTime || 'N/A' }}
+                    </div>
+                </div>
+                <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
+                    {{ (service.memoryUsage * parseFloat(service.memoryLimit)).toFixed(2) }} GB
+                    / {{ service.memoryLimit }} GB
+                </div>
+                <p-progressBar
+                    [showValue]="false"
+                    [styleClass]="'!rounded-full ' + getMemoryClass()"
+                    [style]="{'height': '8px'}"
+                    [value]="memoryPercentage"
+                    class="mb-4"
+                />
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-lg font-medium m-0">Utilisation du CPU</h3>
+                        <div class="text-3xl font-semibold mt-1">{{ cpuPercentage.toFixed(1) }}%</div>
+                    </div>
+                    <div class="text-xs text-surface-500">
+                        Dernier rafraîchissement: {{ cpuUpdateTime || 'N/A' }}
+                    </div>
+                </div>
+                <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">
+                    Charge CPU actuelle
+                </div>
+                <p-progressBar
+                    [showValue]="false"
+                    [styleClass]="'!rounded-full ' + getCpuClass()"
+                    [style]="{'height': '8px'}"
+                    [value]="cpuPercentage"
+                    class="mb-4"
+                />
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Logs Card -->
+    <p-card>
+        <ng-template pTemplate="header">
+            <div class="flex justify-between items-center p-3">
+                <h3 class="text-lg font-medium m-0">Logs du service</h3>
+                <div class="flex gap-2 items-center">
+                    <p-select
+                        (onChange)="filterLogs()"
+                        [(ngModel)]="selectedLogLevel"
+                        [options]="logLevels"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Tous les niveaux"
+                        styleClass="w-48"
+                    ></p-select>
+                    <p-icon-field>
+                        <p-inputicon class="pi pi-search"/>
+                        <input
+                            (input)="filterLogs()"
+                            [(ngModel)]="logFilter"
+                            pInputText
+                            placeholder="Rechercher..."
+                        />
+                    </p-icon-field>
+                    <p-button
+                        (onClick)="toggleFullscreenLogs()"
+                        icon="pi pi-arrows-alt"
+                        pTooltip="Plein écran"
+                        severity="primary"
+                    ></p-button>
+                </div>
+            </div>
+        </ng-template>
+        <div [class]="logsFullscreen ? 'fixed inset-0 z-50 p-4 bg-surface-800' : ''"
+             class="transition-all duration-300">
+            <div *ngIf="logsFullscreen" class="absolute top-4 right-4">
+                <p-button
+                    (onClick)="toggleFullscreenLogs()"
+                    icon="pi pi-times"
+                    pTooltip="Fermer"
+                    severity="secondary"
+                ></p-button>
+            </div>
+            <!-- Container principal avec position relative pour positionner le bouton -->
+            <div class="relative">
+                <!-- Logs Container -->
+                <div
+                    #logsContainer
+                    (scroll)="onLogsScroll()"
+                    [class]="logsFullscreen ? 'h-[calc(100vh-150px)]' : 'h-[50vh]'"
+                    class="w-full p-3 bg-surface-900 text-surface-0 font-mono text-sm overflow-auto rounded-md relative"
+                >
+                    <div *ngFor="let line of filteredLogs" class="whitespace-pre-wrap mb-1">
+                        <ng-container [ngSwitch]="getLogLevel(line)">
+                            <span *ngSwitchCase="'error'" class="text-red-500">{{ line }}</span>
+                            <span *ngSwitchCase="'warn'" class="text-yellow-500">{{ line }}</span>
+                            <span *ngSwitchCase="'info'" class="text-blue-400">{{ line }}</span>
+                            <span *ngSwitchDefault>{{ line }}</span>
+                        </ng-container>
+                    </div>
+                    <div *ngIf="filteredLogs.length === 0" class="text-center py-4 text-surface-400">
+                        Aucun log disponible pour le moment.
+                    </div>
+                </div>
+
+                <!-- Bouton pour revenir en bas et réactiver l'auto-scroll -->
+                <div
+                    *ngIf="!autoScrollEnabled"
+                    class="absolute bottom-2 right-8 animate-bounce"
+                >
+                    <p-button
+                        (onClick)="scrollToBottom(true)"
+                        icon="pi pi-arrow-down"
+                        severity="primary"
+                        styleClass="p-button-rounded p-button-sm"
+                    ></p-button>
+                </div>
+            </div>
+
+            <!-- Console de commande -->
+            <div class="mt-4 w-full">
+                <div class="flex items-center gap-2">
+                    <p-icon-field class="flex-1">
+                        <p-inputicon class="pi pi-terminal"/>
+                        <input
+                            (keyup.enter)="executeCommand()"
+                            [(ngModel)]="commandText"
+                            [disabled]="executingCommand"
+                            class="w-full"
+                            pInputText
+                            placeholder="Entrez une commande shell (ex: ls -la)..."
+                        />
+                    </p-icon-field>
+                    <p-button
+                        (onClick)="executeCommand()"
+                        [disabled]="!commandText"
+                        [loading]="executingCommand"
+                        icon="pi pi-send"
+                        label="Exécuter"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    </p-card>
+
+    <p-toast></p-toast>
+</div>
