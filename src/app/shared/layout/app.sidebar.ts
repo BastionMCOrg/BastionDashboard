@@ -14,7 +14,7 @@ import {AppTopbar} from './app.topbar';
       <div class="sidebar-header">
         <a class="logo" [routerLink]="['/']">
           <img class="logo-image"
-               [src]="'assets/images/crafting-table.png'"
+               [src]="'icon.png'"
                alt="diamond-layout"/>
           <span class="app-name title-h7">BastionMC</span>
         </a>

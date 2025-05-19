@@ -29,10 +29,10 @@ interface NotificationsBars {
             <a tabindex="0" #menubutton type="button" class="menu-button" (click)="onMenuButtonClick()">
                 <i class="pi pi-chevron-left"></i>
             </a>
-            <img class="horizontal-logo" src="assets/images/crafting-table.png" alt="bastionmc-icon" />
+            <img class="horizontal-logo" src="icon.png" alt="bastionmc-icon" />
             <span class="topbar-separator"></span>
             <div app-breadcrumb></div>
-            <img class="mobile-logo" src="/assets/images/crafting-table.png" alt="bastionmc-icon" />
+            <img class="mobile-logo" src="/icon.png" alt="bastionmc-icon" />
         </div>
 
         <div class="topbar-right">
